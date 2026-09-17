@@ -7,12 +7,30 @@
 get_example_data()
 }
 \value{
-A \code{terra::SpatRaster} with 6 layers: \code{"blue"}, \code{"green"},
-\code{"red"}, \code{"nir"}, \code{"swir1"}, \code{"swir2"}.
+A \code{terra::SpatRaster} with 6 layers named
+\code{"blue"}, \code{"green"}, \code{"red"}, \code{"nir"},
+\code{"swir1"}, \code{"swir2"}.
 }
 \description{
-Returns the ready-to-use unpacked \code{terra::SpatRaster} representing the
-bundled 6-band example dataset.
+Returns a ready-to-use synthetic 6-band \code{terra::SpatRaster} for fast,
+reproducible examples and unit testing without downloading satellite scenes.
+}
+\details{
+The raster is generated programmatically (10 x 10 pixels, 100 m x 100 m
+extent, EPSG:32631). It contains three simulated land-cover types:
+healthy vegetation (pixels 2-40), water (pixels 41-70), and built-up /
+bare soil (pixels 71-100). Pixel 1 is \code{NA} in all bands for
+boundary / NA-handling verification.
+
+Spectral bands (reflectance 0-1):
+\itemize{
+\item \code{blue}:  Blue (0.45 - 0.51 um)
+\item \code{green}: Green (0.53 - 0.59 um)
+\item \code{red}:   Red (0.64 - 0.67 um)
+\item \code{nir}:   Near-infrared (0.85 - 0.88 um)
+\item \code{swir1}: Short-wave infrared 1 (1.57 - 1.65 um)
+\item \code{swir2}: Short-wave infrared 2 (2.11 - 2.29 um)
+}
 }
 \examples{
 img <- get_example_data()
