@@ -49,6 +49,7 @@ band_mapping <- function(sensor = c("generic", "sentinel2", "s2",
       rededge2 = "B06",
       rededge3 = "B07",
       nir = "B08",
+      nir2 = "B8A",
       rededge4 = "B8A",
       watervapor = "B09",
       cirrus = "B10",
@@ -67,6 +68,9 @@ band_mapping <- function(sensor = c("generic", "sentinel2", "s2",
       swir2 = "B7",
       pan = "B8",
       cirrus = "B9",
+      thermal1 = "B10",
+      thermal2 = "B11",
+      thermal = "B10",
       swir = "B6"
     )
   } else if (sensor %in% c("landsat7", "landsat5", "tm", "etm")) {
@@ -86,10 +90,15 @@ band_mapping <- function(sensor = c("generic", "sentinel2", "s2",
       green = "green",
       red = "red",
       nir = "nir",
+      nir2 = "nir2",
       swir = "swir",
       swir1 = "swir1",
       swir2 = "swir2",
-      rededge = "rededge"
+      rededge = "rededge",
+      rededge1 = "rededge1",
+      rededge2 = "rededge2",
+      rededge3 = "rededge3",
+      thermal = "thermal"
     )
   }
 }
@@ -98,24 +107,31 @@ band_mapping <- function(sensor = c("generic", "sentinel2", "s2",
 #'
 #' Matches required band roles (e.g., \code{"nir"}, \code{"red"}) against the layers
 #' of a \code{terra::SpatRaster} using custom user mapping, sensor presets, or
-#' heuristic name aliases.
+#' heuristic name aliases. Optionally applies a scale factor (e.g. \code{10000}) to
+#' convert raw integer Digital Numbers into physical reflectance \code{[0, 1]}.
 #'
-#' @param image A \code{terra::SpatRaster} object.
+#' @param image A \code{terra::SpatRaster} object or file path.
 #' @param required_bands Character vector of required standardized band names.
 #' @param custom_mapping Optional named vector or list mapping required names
 #'   to layer names or layer indices in \code{image}.
 #' @param sensor Optional character string for sensor presets.
 #' @param index_name Optional character string of the index being calculated (for
 #'   error reporting).
+#' @param scale_factor Optional numeric scaling divisor (e.g. \code{10000} for
+#'   Sentinel-2 / Landsat L2A products).
 #'
 #' @return A named list of single-layer \code{terra::SpatRaster} objects.
 #'
 #' @keywords internal
 resolve_bands <- function(image, required_bands, custom_mapping = NULL,
-                          sensor = NULL, index_name = "Index") {
-  if (!inherits(image, "SpatRaster")) {
-    stop(sprintf("Expected a 'SpatRaster' object for '%s', but received '%s'.",
-                 "image", class(image)[1]), call. = FALSE)
+                          sensor = NULL, index_name = "Index",
+                          scale_factor = NULL) {
+  image <- validate_raster_input(image, "image")
+
+  if (!is.null(scale_factor)) {
+    if (!is.numeric(scale_factor) || length(scale_factor) != 1 || is.na(scale_factor) || scale_factor <= 0) {
+      stop("Argument 'scale_factor' must be a single positive numeric value (e.g., 10000).", call. = FALSE)
+    }
   }
 
   layer_names <- names(image)
@@ -136,10 +152,15 @@ resolve_bands <- function(image, required_bands, custom_mapping = NULL,
     green = c("green", "b03", "b3", "b_03", "b_3"),
     red = c("red", "b04", "b4", "b_04", "b_4"),
     nir = c("nir", "b08", "b8", "b8a", "b08a", "b5", "b_08", "b_8", "b_5"),
+    nir2 = c("nir2", "b8a", "b08a", "b8_a"),
     swir = c("swir", "swir1", "swir2", "b11", "b6", "b12", "b7", "b_11", "b_6"),
     swir1 = c("swir1", "swir", "b11", "b6", "b_11", "b_6"),
     swir2 = c("swir2", "b12", "b7", "b_12", "b_7"),
-    rededge = c("rededge", "rededge1", "b05", "b5")
+    rededge = c("rededge", "rededge1", "b05", "b5"),
+    rededge1 = c("rededge1", "b05", "b5"),
+    rededge2 = c("rededge2", "b06", "b6"),
+    rededge3 = c("rededge3", "b07", "b7"),
+    thermal = c("thermal", "b10", "b6", "b11")
   )
 
   for (band in required_bands) {
@@ -155,11 +176,17 @@ resolve_bands <- function(image, required_bands, custom_mapping = NULL,
         if (is.numeric(val)) {
           if (val >= 1 && val <= n_layers) {
             found_layer <- image[[val]]
+          } else {
+            stop(sprintf("Band index %d for '%s' is out of bounds (raster has %d layers).",
+                         val, band, n_layers), call. = FALSE)
           }
         } else if (is.character(val)) {
           idx <- which(tolower(layer_names) == tolower(val))
           if (length(idx) > 0) {
             found_layer <- image[[idx[1]]]
+          } else {
+            stop(sprintf("Layer name '%s' mapped to '%s' not found in raster. Available layers: %s.",
+                         val, band, paste(layer_names, collapse = ", ")), call. = FALSE)
           }
         }
       }
@@ -197,6 +224,10 @@ resolve_bands <- function(image, required_bands, custom_mapping = NULL,
     }
 
     if (!is.null(found_layer)) {
+      # Apply scale_factor if provided
+      if (!is.null(scale_factor)) {
+        found_layer <- found_layer / scale_factor
+      }
       resolved[[band_std]] <- found_layer
     } else {
       missing_bands <- c(missing_bands, band)
@@ -206,7 +237,7 @@ resolve_bands <- function(image, required_bands, custom_mapping = NULL,
   if (length(missing_bands) > 0) {
     stop(
       sprintf(
-        "\nIndex '%s' requires the following bands:\n  %s\nAvailable layers in raster:\n  %s\nMissing band(s):\n  %s",
+        "\nIndex/Formula '%s' requires the following band(s):\n  %s\nAvailable layers in raster:\n  %s\nMissing band(s):\n  %s",
         index_name,
         paste(required_bands, collapse = ", "),
         if (length(layer_names) > 0) paste(layer_names, collapse = ", ") else "(unnamed layers)",

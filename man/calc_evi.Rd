@@ -27,6 +27,7 @@ A \code{SpatRaster} (named \code{"EVI"}) or numeric vector with index values.
 \description{
 Computes the Enhanced Vegetation Index, optimizing the vegetation signal with
 improved sensitivity in high biomass regions and reduced atmospheric influences.
+Note: Band values must represent surface reflectance \code{[0, 1]}.
 }
 \details{
 \deqn{EVI = G \times \frac{NIR - RED}{NIR + C1 \times RED - C2 \times BLUE + L}}

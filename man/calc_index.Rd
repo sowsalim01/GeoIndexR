@@ -2,12 +2,12 @@
 % Please edit documentation in R/calc_indices.R
 \name{calc_index}
 \alias{calc_index}
-\title{Generic Direct Index Calculator by Band}
+\title{Dispatch and Calculate a Named Index}
 \usage{
 calc_index(index, ...)
 }
 \arguments{
-\item{index}{Character string of the index code (e.g., \code{"NDVI"}, \code{"SAVI"}).}
+\item{index}{Character string specifying index name (e.g., \code{"NDVI"}, \code{"SAVI"}).}
 
 \item{...}{Named band arguments (e.g., \code{nir = ..., red = ...}) and optional index
 parameters (such as \code{L = 0.5}).}
@@ -16,7 +16,7 @@ parameters (such as \code{L = 0.5}).}
 A \code{SpatRaster} or numeric vector.
 }
 \description{
-Computes any registered index given individual band inputs passed via \code{...}.
+Dynamically invokes the calculation function for any registered index by name.
 }
 \examples{
 calc_index("NDVI", nir = 0.8, red = 0.2)

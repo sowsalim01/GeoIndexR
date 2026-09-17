@@ -13,20 +13,24 @@ index_summary(x, digits = 4)
 Defaults to \code{4}.}
 }
 \value{
-A \code{data.frame} with one row per layer:
+A \code{data.frame} of class \code{"geo_index_summary"} with one row per layer:
 \item{index}{Layer/index name.}
 \item{min}{Minimum index value.}
 \item{max}{Maximum index value.}
 \item{mean}{Mean index value.}
 \item{median}{Median index value.}
 \item{sd}{Standard deviation.}
+\item{q05}{5th percentile.}
+\item{q25}{25th percentile (1st quartile).}
+\item{q75}{75th percentile (3rd quartile).}
+\item{q95}{95th percentile.}
 \item{na_pct}{Percentage of NA values (0 to 100).}
 \item{total_cells}{Total number of raster cells.}
 }
 \description{
 Computes descriptive statistics for one or multiple spectral index layers in a
 \code{terra::SpatRaster} object, including min, max, mean, median, standard deviation,
-and NA percentage.
+percentiles (5th, 25th, 75th, 95th), and NA percentage.
 }
 \examples{
 img <- get_example_data()

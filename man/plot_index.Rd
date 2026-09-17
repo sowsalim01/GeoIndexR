@@ -15,7 +15,7 @@ contains multiple layers.}
 \item{main}{Optional plot title. Defaults to the layer name.}
 
 \item{col}{Optional color palette. If \code{NULL} (default), an appropriate palette
-is automatically chosen based on the index category.}
+is automatically chosen based on the index category or a perceptual palette for custom indices.}
 
 \item{...}{Additional graphical arguments passed to \code{terra::plot}.}
 }
@@ -24,7 +24,7 @@ Invisible \code{terra::SpatRaster} object that was plotted.
 }
 \description{
 Plots a single-layer or selected layer from a \code{terra::SpatRaster} index object
-using tailored color palettes designed for vegetation, water, soil, and urban analysis.
+using tailored color palettes designed for vegetation, water, soil, urban, and custom analysis.
 }
 \examples{
 img <- get_example_data()

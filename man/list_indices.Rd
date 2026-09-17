@@ -2,18 +2,18 @@
 % Please edit documentation in R/registry.R
 \name{list_indices}
 \alias{list_indices}
-\title{List Available Index Names}
+\title{List Supported Spectral Index Codes}
 \usage{
 list_indices(category = NULL)
 }
 \arguments{
-\item{category}{Optional category filter.}
+\item{category}{Optional character string to filter by category.}
 }
 \value{
-Character vector of index names (e.g. \code{c("NDVI", "SAVI", ...)}).
+A character vector of index codes.
 }
 \description{
-Returns a character vector of all supported spectral index codes.
+List Supported Spectral Index Codes
 }
 \examples{
 list_indices()

@@ -4,12 +4,21 @@
 \alias{geo_index_all}
 \title{Compute All Eligible Spectral Indices Automatically}
 \usage{
-geo_index_all(image, bands = NULL, sensor = NULL, quiet = FALSE, ...)
+geo_index_all(
+  image,
+  bands = NULL,
+  scale_factor = NULL,
+  sensor = NULL,
+  quiet = FALSE,
+  ...
+)
 }
 \arguments{
-\item{image}{A \code{terra::SpatRaster} object containing multispectral bands.}
+\item{image}{A \code{terra::SpatRaster} object or raster file path containing multispectral bands.}
 
 \item{bands}{Optional named vector or list specifying custom band mapping.}
+
+\item{scale_factor}{Optional numeric scaling divisor (e.g. \code{10000}).}
 
 \item{sensor}{Optional character string specifying a sensor preset.}
 
@@ -24,7 +33,7 @@ as individual layers.
 }
 \description{
 Automatically detects which spectral indices can be computed given the available
-bands in a \code{terra::SpatRaster} image and calculates all of them.
+bands in a \code{terra::SpatRaster} image (or raster file path) and calculates all of them.
 }
 \examples{
 img <- get_example_data()

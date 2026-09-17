@@ -2,19 +2,17 @@
 % Please edit documentation in R/registry.R
 \name{get_index_meta}
 \alias{get_index_meta}
-\title{Get Metadata for a Single Spectral Index}
+\title{Retrieve Metadata for a Single Spectral Index}
 \usage{
 get_index_meta(index)
 }
 \arguments{
-\item{index}{Character string specifying the index code (case-insensitive,
-e.g. \code{"ndvi"} or \code{"NDVI"}).}
+\item{index}{Character string specifying index name (e.g., \code{"NDVI"}).}
 }
 \value{
-A list containing the index attributes (\code{index}, \code{name}, \code{category},
-\code{required_bands}, \code{default_params}, \code{formula}, \code{range}, \code{reference}).
+A list containing detailed index metadata, parameter defaults, and formulas.
 }
 \description{
-Retrieves complete metadata and default parameters for a specified index.
+Retrieve Metadata for a Single Spectral Index
 }
 \keyword{internal}

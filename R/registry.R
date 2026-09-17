@@ -1,279 +1,395 @@
-#' Spectral Indices Registry
+#' Central Registry of Spectral and Geospatial Indices
 #'
-#' Provides the catalog and metadata of all spectral and geospatial indices
-#' supported by `GeoIndexR`.
+#' Retrieves metadata for all built-in spectral indices or a specific index by name
+#' or category. Metadata includes mathematical formulas, required spectral bands,
+#' parameter defaults, purpose, interpretation guidelines, limitations, scale sensitivity,
+#' and scientific literature references.
 #'
-#' @param category Optional character string filtering indices by category
-#'   (e.g., `"vegetation"`, `"water"`, `"urban"`, `"soil"`, `"moisture"`).
-#'   Defaults to `NULL` (returns all indices).
+#' @param category Optional character string to filter indices by category
+#'   (e.g., \code{"vegetation"}, \code{"water"}, \code{"urban"}, \code{"soil"}, \code{"moisture"}, \code{"snow"}).
 #'
-#' @return A `data.frame` containing index metadata:
-#'   \item{index}{Index code (e.g., `"NDVI"`).}
-#'   \item{name}{Full descriptive name.}
-#'   \item{category}{Category of the index.}
-#'   \item{required_bands}{Comma-separated list of required standard band names.}
-#'   \item{formula}{Mathematical formula in human-readable format.}
-#'   \item{range}{Theoretical or expected value range.}
-#'   \item{reference}{Key scientific reference citation.}
+#' @return A \code{data.frame} containing the registry of supported indices and their metadata.
 #'
 #' @examples
-#' # List all available indices
-#' index_registry()
+#' # View all indices
+#' reg <- index_registry()
+#' reg[, c("index", "name", "category")]
 #'
-#' # Filter by category
-#' index_registry(category = "water")
+#' # View vegetation indices only
+#' veg_reg <- index_registry(category = "vegetation")
+#' veg_reg$index
 #'
 #' @export
 index_registry <- function(category = NULL) {
   indices <- list(
+    # --- VEGETATION INDICES ---
     list(
       index = "NDVI",
       name = "Normalized Difference Vegetation Index",
       category = "vegetation",
+      purpose = "Vegetation greenness, biomass, and vigor monitoring.",
+      description = "Measures chlorophyll absorption in red vs scattering in near-infrared.",
+      interpretation = "Higher values (> 0.3) represent green, healthy vegetation. Dense canopies reach 0.6-0.9. Bare soils are near 0.1-0.2. Water is negative.",
+      limitations = "Saturates over dense, closed-canopy vegetation; sensitive to soil background at low vegetation cover.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
       required_bands = c("nir", "red"),
       default_params = list(),
       formula = "(nir - red) / (nir + red)",
-      range = "[-1, 1]",
-      reference = "Rouse, J. W., et al. (1974). Monitoring the vernal advancement and retrogradation (Green wave effect) of natural vegetation. NASA/GSFC Type III Final Report."
+      reference = "Rouse et al. (1974)"
     ),
     list(
       index = "SAVI",
       name = "Soil Adjusted Vegetation Index",
       category = "vegetation",
+      purpose = "Vegetation monitoring in arid, semiarid, or sparse canopy regions.",
+      description = "Applies a soil-adjustment factor L to suppress soil background brightness.",
+      interpretation = "Ranges typically from -1 to 1. Higher values indicate more vegetation canopy. L = 0.5 is standard for intermediate vegetation cover.",
+      limitations = "Requires estimating or fixing the soil line adjustment factor L.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.5, 1.5),
       required_bands = c("nir", "red"),
       default_params = list(L = 0.5),
       formula = "((nir - red) / (nir + red + L)) * (1 + L)",
-      range = "[-1, 1]",
-      reference = "Huete, A. R. (1988). A soil-adjusted vegetation index (SAVI). Remote Sensing of Environment, 25(3), 295-309."
+      reference = "Huete (1988)"
     ),
     list(
       index = "EVI",
       name = "Enhanced Vegetation Index",
       category = "vegetation",
+      purpose = "High biomass vegetation monitoring with reduced atmospheric and canopy background noise.",
+      description = "Incorporates the blue band to correct for aerosol scattering and background canopy reflectance.",
+      interpretation = "Typical values for healthy vegetation range between 0.2 and 0.8. Requires physical surface reflectance in [0, 1].",
+      limitations = "Sensitive to input data scaling; requires high quality surface reflectance with valid blue band.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.0, 1.0),
       required_bands = c("nir", "red", "blue"),
       default_params = list(G = 2.5, C1 = 6.0, C2 = 7.5, L = 1.0),
       formula = "G * (nir - red) / (nir + C1 * red - C2 * blue + L)",
-      range = "[-1, 1]",
-      reference = "Liu, H. Q., & Huete, A. (1995). A feedback based modification of the NDVI to minimize canopy background and atmospheric noise. IEEE TGRS, 33(2), 457-465."
+      reference = "Liu & Huete (1995)"
+    ),
+    list(
+      index = "MSAVI",
+      name = "Modified Soil Adjusted Vegetation Index 2",
+      category = "vegetation",
+      purpose = "Vegetation monitoring in sparse canopies without requiring an empirical soil parameter.",
+      description = "Derives an inductive soil factor to eliminate the manual specification of L in SAVI.",
+      interpretation = "Values range from 0 to 1 for green vegetation. Suppresses soil brightness effects automatically.",
+      limitations = "Requires physical surface reflectance.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("nir", "red"),
+      default_params = list(),
+      formula = "(2 * nir + 1 - sqrt((2 * nir + 1)^2 - 8 * (nir - red))) / 2",
+      reference = "Qi et al. (1994)"
+    ),
+    list(
+      index = "OSAVI",
+      name = "Optimized Soil-Adjusted Vegetation Index",
+      category = "vegetation",
+      purpose = "Standardized soil-adjusted vegetation index with fixed optimal parameter.",
+      description = "Uses a standard theta = 0.16 canopy background factor.",
+      interpretation = "Values from 0.2 to 0.9 indicate healthy vegetation with minimal soil interference.",
+      limitations = "Requires physical reflectance in [0, 1].",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("nir", "red"),
+      default_params = list(theta = 0.16),
+      formula = "((nir - red) / (nir + red + theta)) * (1 + theta)",
+      reference = "Rondeaux et al. (1996)"
+    ),
+    list(
+      index = "ARVI",
+      name = "Atmospherically Resistant Vegetation Index",
+      category = "vegetation",
+      purpose = "Vegetation monitoring under atmospheric haze or aerosol conditions.",
+      description = "Uses blue band to correct atmospheric scattering in the red channel.",
+      interpretation = "Similar interpretation to NDVI but more robust in smoky or hazy atmospheres.",
+      limitations = "Sensitive to blue band radiometric calibration.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("nir", "red", "blue"),
+      default_params = list(gamma = 1.0),
+      formula = "(nir - (red - gamma * (blue - red))) / (nir + (red - gamma * (blue - red)))",
+      reference = "Kaufman & Tanre (1992)"
     ),
     list(
       index = "GNDVI",
       name = "Green Normalized Difference Vegetation Index",
       category = "vegetation",
+      purpose = "Chlorophyll concentration and photosynthetic activity assessment.",
+      description = "Substitutes green for red to enhance sensitivity to chlorophyll content at mid-to-high biomass.",
+      interpretation = "Values > 0.4 indicate high green biomass and chlorophyll concentration.",
+      limitations = "Less sensitive to early stage sparse canopy than NDVI.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
       required_bands = c("nir", "green"),
       default_params = list(),
       formula = "(nir - green) / (nir + green)",
-      range = "[-1, 1]",
-      reference = "Gitelson, A. A., et al. (1996). Use of a green channel in remote sensing of global vegetation from EOS-MODIS. Remote Sensing of Environment, 58(3), 289-298."
+      reference = "Gitelson et al. (1996)"
     ),
+
+    # --- WATER INDICES ---
     list(
       index = "NDWI",
       name = "Normalized Difference Water Index",
       category = "water",
+      purpose = "Delineation and mapping of open surface water bodies.",
+      description = "Contrasts green reflectance with NIR absorption by water.",
+      interpretation = "Positive values (> 0) generally correspond to open water bodies. Vegetation and soil produce negative values.",
+      limitations = "Can misclassify built-up areas and dark shadows as water.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
       required_bands = c("green", "nir"),
       default_params = list(),
       formula = "(green - nir) / (green + nir)",
-      range = "[-1, 1]",
-      reference = "McFeeters, S. K. (1996). The use of the Normalized Difference Water Index (NDWI) in the delineation of open water features. International Journal of Remote Sensing, 17(7), 1425-1432."
+      reference = "McFeeters (1996)"
     ),
     list(
       index = "MNDWI",
       name = "Modified Normalized Difference Water Index",
       category = "water",
-      required_bands = c("green", "swir"),
+      purpose = "Open water feature extraction in urban and built-up environments.",
+      description = "Substitutes SWIR for NIR to suppress built-up noise and enhance water contrast.",
+      interpretation = "Positive values represent water bodies; built-up, soil, and vegetation have negative values.",
+      limitations = "Cloud shadows can occasionally produce false positives.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("green", "swir1"),
       default_params = list(),
-      formula = "(green - swir) / (green + swir)",
-      range = "[-1, 1]",
-      reference = "Xu, H. (2006). Modification of normalised difference water index (NDWI) to enhance open water features in remotely sensed imagery. International Journal of Remote Sensing, 27(14), 3025-3033."
+      formula = "(green - swir1) / (green + swir1)",
+      reference = "Xu (2006)"
     ),
+    list(
+      index = "AWEI",
+      name = "Automated Water Extraction Index",
+      category = "water",
+      purpose = "Surface water extraction with improved suppression of shadow and dark impervious surfaces.",
+      description = "Combines Green, NIR, SWIR1, and SWIR2 bands.",
+      interpretation = "Positive values (> 0) classify as water pixels.",
+      limitations = "Requires physical reflectance and 4 separate spectral bands.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-5.0, 5.0),
+      required_bands = c("green", "nir", "swir1", "swir2"),
+      default_params = list(),
+      formula = "4 * (green - swir1) - (0.25 * nir + 2.75 * swir2)",
+      reference = "Feyisa et al. (2014)"
+    ),
+
+    # --- URBAN / BUILT-UP INDICES ---
     list(
       index = "NDBI",
       name = "Normalized Difference Built-up Index",
       category = "urban",
-      required_bands = c("swir", "nir"),
+      purpose = "Mapping impervious surfaces, urban extents, and built-up areas.",
+      description = "Exploits higher SWIR reflectance relative to NIR in urban surfaces.",
+      interpretation = "Positive values (> 0) indicate built-up and impervious surfaces; vegetation has negative values.",
+      limitations = "Can exhibit confusion between bare soil and built-up areas.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("swir1", "nir"),
       default_params = list(),
-      formula = "(swir - nir) / (swir + nir)",
-      range = "[-1, 1]",
-      reference = "Zha, Y., et al. (2003). Use of normalized difference built-up index in automatically mapping urban areas from TM imagery. International Journal of Remote Sensing, 24(3), 583-594."
+      formula = "(swir1 - nir) / (swir1 + nir)",
+      reference = "Zha et al. (2003)"
     ),
+    list(
+      index = "IBI",
+      name = "Index-Based Built-Up Index",
+      category = "urban",
+      purpose = "Enhanced built-up land extraction by synthesizing NDBI, SAVI, and MNDWI.",
+      description = "Subtracts combined vegetation and water signals from the built-up signal.",
+      interpretation = "Positive values highlight built-up areas with high contrast against surrounding soil/vegetation.",
+      limitations = "Requires green, red, NIR, and SWIR bands.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-2.0, 2.0),
+      required_bands = c("swir1", "nir", "red", "green"),
+      default_params = list(L = 0.5),
+      formula = "((swir1 - nir) / (swir1 + nir) - (((nir - red) * 1.5 / (nir + red + 0.5)) + (green - swir1) / (green + swir1)) / 2) / ((swir1 - nir) / (swir1 + nir) + (((nir - red) * 1.5 / (nir + red + 0.5)) + (green - swir1) / (green + swir1)) / 2)",
+      reference = "Xu (2007)"
+    ),
+
+    # --- MOISTURE INDICES ---
     list(
       index = "NDMI",
       name = "Normalized Difference Moisture Index",
       category = "moisture",
-      required_bands = c("nir", "swir"),
+      purpose = "Vegetation canopy liquid water content and canopy water stress assessment.",
+      description = "Contrasts NIR reflectance with SWIR liquid water absorption.",
+      interpretation = "Values from 0.2 to 0.8 indicate moist, healthy vegetation canopy. Negative values indicate dry soil or severe drought stress.",
+      limitations = "Affected by soil background moisture in sparse canopies.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("nir", "swir1"),
       default_params = list(),
-      formula = "(nir - swir) / (nir + swir)",
-      range = "[-1, 1]",
-      reference = "Gao, B. C. (1996). NDWI—A normalized difference water index for remote sensing of vegetation liquid water from space. Remote Sensing of Environment, 58(3), 257-266."
+      formula = "(nir - swir1) / (nir + swir1)",
+      reference = "Gao (1996)"
     ),
+    list(
+      index = "MSI",
+      name = "Moisture Stress Index",
+      category = "moisture",
+      purpose = "Plant water stress detection and canopy water loss monitoring.",
+      description = "Simple ratio of SWIR1 to NIR reflectance.",
+      interpretation = "Higher values (> 1.0) indicate increased canopy water stress; lower values (< 0.6) indicate healthy hydrated canopy.",
+      limitations = "Ratio index with open upper scale.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(0.0, 10.0),
+      required_bands = c("swir1", "nir"),
+      default_params = list(),
+      formula = "swir1 / nir",
+      reference = "Rock et al. (1986)"
+    ),
+
+    # --- SOIL INDICES ---
     list(
       index = "BSI",
       name = "Bare Soil Index",
       category = "soil",
-      required_bands = c("swir", "red", "nir", "blue"),
+      purpose = "Identification and mapping of bare soils and agricultural fallow fields.",
+      description = "Combines blue, red, NIR, and SWIR bands to isolate bare soil from vegetation and impervious land.",
+      interpretation = "Higher positive values (> 0.1) correspond to exposed bare soil and uncultivated fields.",
+      limitations = "Requires 4 separate spectral bands.",
+      requires_reflectance = TRUE,
+      scale_sensitive = TRUE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("swir1", "red", "nir", "blue"),
       default_params = list(),
-      formula = "((swir + red) - (nir + blue)) / ((swir + red) + (nir + blue))",
-      range = "[-1, 1]",
-      reference = "Rikimaru, A., et al. (2002). Tropical forest cover density mapping. International Journal of Applied Earth Observation and Geoinformation, 4(1), 39-47."
+      formula = "((swir1 + red) - (nir + blue)) / ((swir1 + red) + (nir + blue))",
+      reference = "Rikimaru et al. (2002)"
+    ),
+
+    # --- SNOW INDICES ---
+    list(
+      index = "NDSI",
+      name = "Normalized Difference Snow Index",
+      category = "snow",
+      purpose = "Snow and ice cover mapping and glacier extent monitoring.",
+      description = "Exploits high green reflectance and strong SWIR absorption by snow/ice.",
+      interpretation = "Values > 0.4 indicate snow/ice cover. Clouds typically have lower or near-zero NDSI.",
+      limitations = "Can confuse mixed snow-vegetation pixels.",
+      requires_reflectance = FALSE,
+      scale_sensitive = FALSE,
+      valid_range = c(-1.0, 1.0),
+      required_bands = c("green", "swir1"),
+      default_params = list(),
+      formula = "(green - swir1) / (green + swir1)",
+      reference = "Hall et al. (1995)"
     )
   )
 
   df <- data.frame(
-    index = vapply(indices, function(x) x$index, character(1)),
-    name = vapply(indices, function(x) x$name, character(1)),
-    category = vapply(indices, function(x) x$category, character(1)),
+    index = vapply(indices, `[[`, character(1), "index"),
+    name = vapply(indices, `[[`, character(1), "name"),
+    category = vapply(indices, `[[`, character(1), "category"),
+    purpose = vapply(indices, `[[`, character(1), "purpose"),
+    description = vapply(indices, `[[`, character(1), "description"),
+    interpretation = vapply(indices, `[[`, character(1), "interpretation"),
+    limitations = vapply(indices, `[[`, character(1), "limitations"),
+    requires_reflectance = vapply(indices, `[[`, logical(1), "requires_reflectance"),
+    scale_sensitive = vapply(indices, `[[`, logical(1), "scale_sensitive"),
     required_bands = vapply(indices, function(x) paste(x$required_bands, collapse = ", "), character(1)),
-    formula = vapply(indices, function(x) x$formula, character(1)),
-    range = vapply(indices, function(x) x$range, character(1)),
-    reference = vapply(indices, function(x) x$reference, character(1)),
+    formula = vapply(indices, `[[`, character(1), "formula"),
+    reference = vapply(indices, `[[`, character(1), "reference"),
     stringsAsFactors = FALSE
   )
 
   if (!is.null(category)) {
-    category_lower <- tolower(trimws(category))
-    valid_cats <- unique(df$category)
-    if (!category_lower %in% valid_cats) {
-      warning(
-        sprintf("Unknown category '%s'. Available categories: %s",
-                category, paste(valid_cats, collapse = ", ")),
-        call. = FALSE
-      )
+    cat_clean <- tolower(trimws(category))
+    df <- df[df$category == cat_clean, , drop = FALSE]
+    if (nrow(df) == 0) {
+      warning(sprintf("No indices found for category '%s'.", category), call. = FALSE)
     }
-    df <- df[df$category == category_lower, , drop = FALSE]
   }
 
   rownames(df) <- NULL
   df
 }
 
-#' Get Metadata for a Single Spectral Index
+#' Retrieve Metadata for a Single Spectral Index
 #'
-#' Retrieves complete metadata and default parameters for a specified index.
+#' @param index Character string specifying index name (e.g., \code{"NDVI"}).
 #'
-#' @param index Character string specifying the index code (case-insensitive,
-#'   e.g. `"ndvi"` or `"NDVI"`).
-#'
-#' @return A list containing the index attributes (`index`, `name`, `category`,
-#'   `required_bands`, `default_params`, `formula`, `range`, `reference`).
+#' @return A list containing detailed index metadata, parameter defaults, and formulas.
 #'
 #' @keywords internal
 get_index_meta <- function(index) {
-  if (missing(index) || length(index) != 1 || !is.character(index)) {
-    stop("'index' must be a single character string.", call. = FALSE)
+  if (missing(index) || length(index) != 1 || !is.character(index) || !nzchar(trimws(index))) {
+    stop("Argument 'index' must be a single non-empty character string.", call. = FALSE)
   }
 
-  all_indices <- list(
-    NDVI = list(
-      index = "NDVI",
-      name = "Normalized Difference Vegetation Index",
-      category = "vegetation",
-      required_bands = c("nir", "red"),
-      default_params = list(),
-      formula = "(nir - red) / (nir + red)",
-      range = "[-1, 1]",
-      reference = "Rouse et al. (1974)"
-    ),
-    SAVI = list(
-      index = "SAVI",
-      name = "Soil Adjusted Vegetation Index",
-      category = "vegetation",
-      required_bands = c("nir", "red"),
-      default_params = list(L = 0.5),
-      formula = "((nir - red) / (nir + red + L)) * (1 + L)",
-      range = "[-1, 1]",
-      reference = "Huete (1988)"
-    ),
-    EVI = list(
-      index = "EVI",
-      name = "Enhanced Vegetation Index",
-      category = "vegetation",
-      required_bands = c("nir", "red", "blue"),
-      default_params = list(G = 2.5, C1 = 6.0, C2 = 7.5, L = 1.0),
-      formula = "G * (nir - red) / (nir + C1 * red - C2 * blue + L)",
-      range = "[-1, 1]",
-      reference = "Liu & Huete (1995)"
-    ),
-    GNDVI = list(
-      index = "GNDVI",
-      name = "Green Normalized Difference Vegetation Index",
-      category = "vegetation",
-      required_bands = c("nir", "green"),
-      default_params = list(),
-      formula = "(nir - green) / (nir + green)",
-      range = "[-1, 1]",
-      reference = "Gitelson et al. (1996)"
-    ),
-    NDWI = list(
-      index = "NDWI",
-      name = "Normalized Difference Water Index",
-      category = "water",
-      required_bands = c("green", "nir"),
-      default_params = list(),
-      formula = "(green - nir) / (green + nir)",
-      range = "[-1, 1]",
-      reference = "McFeeters (1996)"
-    ),
-    MNDWI = list(
-      index = "MNDWI",
-      name = "Modified Normalized Difference Water Index",
-      category = "water",
-      required_bands = c("green", "swir"),
-      default_params = list(),
-      formula = "(green - swir) / (green + swir)",
-      range = "[-1, 1]",
-      reference = "Xu (2006)"
-    ),
-    NDBI = list(
-      index = "NDBI",
-      name = "Normalized Difference Built-up Index",
-      category = "urban",
-      required_bands = c("swir", "nir"),
-      default_params = list(),
-      formula = "(swir - nir) / (swir + nir)",
-      range = "[-1, 1]",
-      reference = "Zha et al. (2003)"
-    ),
-    NDMI = list(
-      index = "NDMI",
-      name = "Normalized Difference Moisture Index",
-      category = "moisture",
-      required_bands = c("nir", "swir"),
-      default_params = list(),
-      formula = "(nir - swir) / (nir + swir)",
-      range = "[-1, 1]",
-      reference = "Gao (1996)"
-    ),
-    BSI = list(
-      index = "BSI",
-      name = "Bare Soil Index",
-      category = "soil",
-      required_bands = c("swir", "red", "nir", "blue"),
-      default_params = list(),
-      formula = "((swir + red) - (nir + blue)) / ((swir + red) + (nir + blue))",
-      range = "[-1, 1]",
-      reference = "Rikimaru et al. (2002)"
-    )
-  )
+  idx_clean <- toupper(trimws(index))
+  reg <- index_registry()
+  matched_row <- which(reg$index == idx_clean)
 
-  key <- toupper(trimws(index))
-  if (!key %in% names(all_indices)) {
-    avail <- paste(names(all_indices), collapse = ", ")
+  if (length(matched_row) == 0) {
+    available <- paste(reg$index, collapse = ", ")
     stop(
-      sprintf("Unknown index '%s'. Available indices: %s.", index, avail),
+      sprintf("Index '%s' is not in the registry.\nSupported indices: %s.\nFor custom formulas, use 'geo_index_custom()'.",
+              index, available),
       call. = FALSE
     )
   }
 
-  all_indices[[key]]
+  row <- reg[matched_row, ]
+  bands <- trimws(unlist(strsplit(row$required_bands, ",\\s*")))
+
+  # Extract default params for specific indices
+  default_params <- switch(
+    idx_clean,
+    SAVI = list(L = 0.5),
+    EVI = list(G = 2.5, C1 = 6.0, C2 = 7.5, L = 1.0),
+    OSAVI = list(theta = 0.16),
+    ARVI = list(gamma = 1.0),
+    IBI = list(L = 0.5),
+    list()
+  )
+
+  valid_range <- switch(
+    idx_clean,
+    AWEI = c(-5.0, 5.0),
+    MSI = c(0.0, 10.0),
+    IBI = c(-2.0, 2.0),
+    SAVI = c(-1.5, 1.5),
+    c(-1.0, 1.0)
+  )
+
+  list(
+    index = row$index,
+    name = row$name,
+    category = row$category,
+    purpose = row$purpose,
+    description = row$description,
+    interpretation = row$interpretation,
+    limitations = row$limitations,
+    requires_reflectance = row$requires_reflectance,
+    scale_sensitive = row$scale_sensitive,
+    valid_range = valid_range,
+    required_bands = bands,
+    default_params = default_params,
+    formula = row$formula,
+    reference = row$reference
+  )
 }
 
-#' List Available Index Names
+#' List Supported Spectral Index Codes
 #'
-#' Returns a character vector of all supported spectral index codes.
+#' @param category Optional character string to filter by category.
 #'
-#' @param category Optional category filter.
-#'
-#' @return Character vector of index names (e.g. `c("NDVI", "SAVI", ...)`).
+#' @return A character vector of index codes.
 #'
 #' @examples
 #' list_indices()

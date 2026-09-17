@@ -1,10 +1,11 @@
 #' Compute All Eligible Spectral Indices Automatically
 #'
 #' Automatically detects which spectral indices can be computed given the available
-#' bands in a \code{terra::SpatRaster} image and calculates all of them.
+#' bands in a \code{terra::SpatRaster} image (or raster file path) and calculates all of them.
 #'
-#' @param image A \code{terra::SpatRaster} object containing multispectral bands.
+#' @param image A \code{terra::SpatRaster} object or raster file path containing multispectral bands.
 #' @param bands Optional named vector or list specifying custom band mapping.
+#' @param scale_factor Optional numeric scaling divisor (e.g. \code{10000}).
 #' @param sensor Optional character string specifying a sensor preset.
 #' @param quiet Logical. If \code{FALSE} (default), outputs an informative message
 #'   listing which indices were detected and computed.
@@ -21,8 +22,8 @@
 #' names(all_idx)
 #'
 #' @export
-geo_index_all <- function(image, bands = NULL, sensor = NULL, quiet = FALSE, ...) {
-  check_raster(image, "image")
+geo_index_all <- function(image, bands = NULL, scale_factor = NULL, sensor = NULL, quiet = FALSE, ...) {
+  image <- validate_raster_input(image, "image")
 
   all_registered <- list_indices()
   eligible <- character(0)
@@ -35,7 +36,8 @@ geo_index_all <- function(image, bands = NULL, sensor = NULL, quiet = FALSE, ...
         required_bands = meta$required_bands,
         custom_mapping = bands,
         sensor = sensor,
-        index_name = idx
+        index_name = idx,
+        scale_factor = scale_factor
       )
       TRUE
     }, error = function(e) FALSE)
@@ -60,5 +62,12 @@ geo_index_all <- function(image, bands = NULL, sensor = NULL, quiet = FALSE, ...
                     length(eligible), paste(eligible, collapse = ", ")))
   }
 
-  geo_indices(image = image, indices = eligible, bands = bands, sensor = sensor, ...)
+  geo_indices(
+    image = image,
+    indices = eligible,
+    bands = bands,
+    scale_factor = scale_factor,
+    sensor = sensor,
+    ...
+  )
 }

@@ -21,10 +21,10 @@ Computes McFeeters' Normalized Difference Water Index for delineating open water
 \deqn{NDWI = \frac{GREEN - NIR}{GREEN + NIR}}
 }
 \examples{
-calc_ndwi(green = 0.5, nir = 0.1)
+calc_ndwi(green = 0.6, nir = 0.2)
 
 }
 \references{
 McFeeters, S. K. (1996). The use of the Normalized Difference Water Index (NDWI)
-in the delineation of open water features. IJRS, 17(7), 1425-1432.
+in the delineation of open water features. International Journal of Remote Sensing, 17(7), 1425-1432.
 }

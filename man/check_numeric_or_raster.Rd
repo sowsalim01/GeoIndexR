@@ -2,16 +2,19 @@
 % Please edit documentation in R/validation.R
 \name{check_numeric_or_raster}
 \alias{check_numeric_or_raster}
-\title{Check that an input is either a SpatRaster or a numeric vector/array}
+\title{Check that an object is numeric or SpatRaster}
 \usage{
-check_numeric_or_raster(x, name = "band")
+check_numeric_or_raster(x, arg_name = "band")
 }
 \arguments{
-\item{x}{Input to check.}
+\item{x}{Object to check.}
 
-\item{name}{Name of argument.}
+\item{arg_name}{Name of argument.}
+}
+\value{
+Invisible \code{TRUE} if valid; throws error otherwise.
 }
 \description{
-Check that an input is either a SpatRaster or a numeric vector/array
+Check that an object is numeric or SpatRaster
 }
 \keyword{internal}

@@ -22,7 +22,6 @@ and red (\code{red}) bands.
 \deqn{NDVI = \frac{NIR - RED}{NIR + RED}}
 }
 \examples{
-# Numeric vector example
 calc_ndvi(nir = 0.8, red = 0.2)
 
 }

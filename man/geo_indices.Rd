@@ -4,15 +4,24 @@
 \alias{geo_indices}
 \title{Compute Multiple Spectral Indices from Multispectral Raster Data}
 \usage{
-geo_indices(image, indices, bands = NULL, sensor = NULL, ...)
+geo_indices(
+  image,
+  indices,
+  bands = NULL,
+  scale_factor = NULL,
+  sensor = NULL,
+  ...
+)
 }
 \arguments{
-\item{image}{A \code{terra::SpatRaster} object containing multispectral bands.}
+\item{image}{A \code{terra::SpatRaster} object or file path containing multispectral bands.}
 
 \item{indices}{Character vector of index codes to compute (e.g.,
 \code{c("NDVI", "NDWI", "NDBI", "NDMI")}).}
 
 \item{bands}{Optional named vector or list specifying custom band mapping.}
+
+\item{scale_factor}{Optional numeric scaling divisor (e.g. \code{10000}).}
 
 \item{sensor}{Optional character string specifying a sensor preset.}
 
@@ -24,7 +33,7 @@ one computed index, named accordingly.
 }
 \description{
 Computes a collection of spectral indices from a multispectral \code{terra::SpatRaster}
-and returns the results stacked into a multi-layer \code{SpatRaster}.
+or raster file path and returns the results stacked into a multi-layer \code{SpatRaster}.
 }
 \examples{
 img <- get_example_data()

@@ -4,10 +4,10 @@
 \alias{calc_bsi}
 \title{Calculate Bare Soil Index (BSI)}
 \usage{
-calc_bsi(swir, red, nir, blue)
+calc_bsi(swir1, red, nir, blue)
 }
 \arguments{
-\item{swir}{Shortwave infrared band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
 
 \item{red}{Red band (\code{SpatRaster} or numeric).}
 
@@ -19,16 +19,17 @@ calc_bsi(swir, red, nir, blue)
 A \code{SpatRaster} (named \code{"BSI"}) or numeric vector with index values.
 }
 \description{
-Computes the Bare Soil Index combining blue, red, near-infrared, and shortwave infrared bands.
+Computes the Bare Soil Index, combining blue, red, NIR, and SWIR bands to
+distinguish bare soils and agricultural fallow lands from vegetation and impervious areas.
 }
 \details{
-\deqn{BSI = \frac{(SWIR + RED) - (NIR + BLUE)}{(SWIR + RED) + (NIR + BLUE)}}
+\deqn{BSI = \frac{(SWIR1 + RED) - (NIR + BLUE)}{(SWIR1 + RED) + (NIR + BLUE)}}
 }
 \examples{
-calc_bsi(swir = 0.4, red = 0.3, nir = 0.2, blue = 0.1)
+calc_bsi(swir1 = 0.5, red = 0.4, nir = 0.2, blue = 0.1)
 
 }
 \references{
 Rikimaru, A., et al. (2002). Tropical forest cover density mapping.
-International Journal of Applied Earth Observation and Geoinformation, 4(1), 39-47.
+Tropical Ecology, 43(1), 39-47.
 }

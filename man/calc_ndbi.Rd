@@ -4,10 +4,10 @@
 \alias{calc_ndbi}
 \title{Calculate Normalized Difference Built-up Index (NDBI)}
 \usage{
-calc_ndbi(swir, nir)
+calc_ndbi(swir1, nir)
 }
 \arguments{
-\item{swir}{Shortwave infrared band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
 
 \item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
 }
@@ -15,13 +15,13 @@ calc_ndbi(swir, nir)
 A \code{SpatRaster} (named \code{"NDBI"}) or numeric vector with index values.
 }
 \description{
-Computes the Normalized Difference Built-up Index for mapping urban and built-up areas.
+Computes the Normalized Difference Built-up Index for mapping urban and impervious surfaces.
 }
 \details{
-\deqn{NDBI = \frac{SWIR - NIR}{SWIR + NIR}}
+\deqn{NDBI = \frac{SWIR1 - NIR}{SWIR1 + NIR}}
 }
 \examples{
-calc_ndbi(swir = 0.4, nir = 0.2)
+calc_ndbi(swir1 = 0.6, nir = 0.3)
 
 }
 \references{

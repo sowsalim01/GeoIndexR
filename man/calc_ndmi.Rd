@@ -4,28 +4,27 @@
 \alias{calc_ndmi}
 \title{Calculate Normalized Difference Moisture Index (NDMI)}
 \usage{
-calc_ndmi(nir, swir)
+calc_ndmi(nir, swir1)
 }
 \arguments{
 \item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
 
-\item{swir}{Shortwave infrared band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
 }
 \value{
 A \code{SpatRaster} (named \code{"NDMI"}) or numeric vector with index values.
 }
 \description{
-Computes the Normalized Difference Moisture Index (also known as NDWI-Gao)
-for monitoring vegetation canopy water content.
+Computes the Normalized Difference Moisture Index to assess vegetation canopy water content.
 }
 \details{
-\deqn{NDMI = \frac{NIR - SWIR}{NIR + SWIR}}
+\deqn{NDMI = \frac{NIR - SWIR1}{NIR + SWIR1}}
 }
 \examples{
-calc_ndmi(nir = 0.7, swir = 0.3)
+calc_ndmi(nir = 0.7, swir1 = 0.3)
 
 }
 \references{
-Gao, B. C. (1996). NDWI—A normalized difference water index for remote
-sensing of vegetation liquid water from space. RSE, 58(3), 257-266.
+Gao, B. C. (1996). NDWI—A normalized difference water index for remote sensing of
+vegetation liquid water from space. Remote Sensing of Environment, 58(3), 257-266.
 }

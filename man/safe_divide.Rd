@@ -2,22 +2,25 @@
 % Please edit documentation in R/validation.R
 \name{safe_divide}
 \alias{safe_divide}
-\title{Safe Division Preventing Zero-Division and Infinite Values}
+\title{Safe Division Function Handling Zeros, Singularity, and Non-Finite Values}
 \usage{
-safe_divide(num, den)
+safe_divide(num, den, tol = 1e-06)
 }
 \arguments{
 \item{num}{Numerator (\code{SpatRaster} or numeric).}
 
 \item{den}{Denominator (\code{SpatRaster} or numeric).}
+
+\item{tol}{Singularity tolerance threshold. Values with $|den| < tol$ are safely
+converted to \code{NA}. Defaults to \code{1e-6}.}
 }
 \value{
 An object of the same class as inputs with values safely bounded and
 non-finite values replaced by \code{NA}.
 }
 \description{
-Computes \code{numerator / denominator} while guaranteeing that whenever
-\code{denominator == 0} or the result is non-finite (\code{Inf}, \code{-Inf}, \code{NaN}),
-the output value is set to \code{NA}.
+Performs division with protection against division by zero, near-zero denominator
+singularities ($|den| < tol$), and non-finite values (\code{Inf}, \code{-Inf}, \code{NaN}),
+replacing invalid results with \code{NA}.
 }
 \keyword{internal}

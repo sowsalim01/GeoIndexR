@@ -2,34 +2,30 @@
 % Please edit documentation in R/registry.R
 \name{index_registry}
 \alias{index_registry}
-\title{Spectral Indices Registry}
+\title{Central Registry of Spectral and Geospatial Indices}
 \usage{
 index_registry(category = NULL)
 }
 \arguments{
-\item{category}{Optional character string filtering indices by category
-(e.g., \code{"vegetation"}, \code{"water"}, \code{"urban"}, \code{"soil"}, \code{"moisture"}).
-Defaults to \code{NULL} (returns all indices).}
+\item{category}{Optional character string to filter indices by category
+(e.g., \code{"vegetation"}, \code{"water"}, \code{"urban"}, \code{"soil"}, \code{"moisture"}, \code{"snow"}).}
 }
 \value{
-A \code{data.frame} containing index metadata:
-\item{index}{Index code (e.g., \code{"NDVI"}).}
-\item{name}{Full descriptive name.}
-\item{category}{Category of the index.}
-\item{required_bands}{Comma-separated list of required standard band names.}
-\item{formula}{Mathematical formula in human-readable format.}
-\item{range}{Theoretical or expected value range.}
-\item{reference}{Key scientific reference citation.}
+A \code{data.frame} containing the registry of supported indices and their metadata.
 }
 \description{
-Provides the catalog and metadata of all spectral and geospatial indices
-supported by \code{GeoIndexR}.
+Retrieves metadata for all built-in spectral indices or a specific index by name
+or category. Metadata includes mathematical formulas, required spectral bands,
+parameter defaults, purpose, interpretation guidelines, limitations, scale sensitivity,
+and scientific literature references.
 }
 \examples{
-# List all available indices
-index_registry()
+# View all indices
+reg <- index_registry()
+reg[, c("index", "name", "category")]
 
-# Filter by category
-index_registry(category = "water")
+# View vegetation indices only
+veg_reg <- index_registry(category = "vegetation")
+veg_reg$index
 
 }

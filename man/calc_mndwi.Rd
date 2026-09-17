@@ -4,25 +4,25 @@
 \alias{calc_mndwi}
 \title{Calculate Modified Normalized Difference Water Index (MNDWI)}
 \usage{
-calc_mndwi(green, swir)
+calc_mndwi(green, swir1)
 }
 \arguments{
 \item{green}{Green band (\code{SpatRaster} or numeric).}
 
-\item{swir}{Shortwave infrared band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
 }
 \value{
 A \code{SpatRaster} (named \code{"MNDWI"}) or numeric vector with index values.
 }
 \description{
-Computes Xu's Modified Normalized Difference Water Index, replacing NIR with SWIR
-to enhance open water features while suppressing built-up noise.
+Computes Xu's Modified NDWI, substituting SWIR for NIR to enhance open water features
+while reducing built-up noise.
 }
 \details{
-\deqn{MNDWI = \frac{GREEN - SWIR}{GREEN + SWIR}}
+\deqn{MNDWI = \frac{GREEN - SWIR1}{GREEN + SWIR1}}
 }
 \examples{
-calc_mndwi(green = 0.6, swir = 0.1)
+calc_mndwi(green = 0.7, swir1 = 0.1)
 
 }
 \references{

@@ -2,15 +2,18 @@
 % Please edit documentation in R/validation.R
 \name{check_spatial_compatibility}
 \alias{check_spatial_compatibility}
-\title{Check spatial compatibility across multiple SpatRaster objects}
+\title{Check Spatial Compatibility Across Raster Bands}
 \usage{
-check_spatial_compatibility(bands)
+check_spatial_compatibility(band_list)
 }
 \arguments{
-\item{bands}{A named list of SpatRaster objects.}
+\item{band_list}{Named list of \code{SpatRaster} or numeric objects.}
+}
+\value{
+Invisible \code{TRUE} if all raster inputs are compatible.
 }
 \description{
-Ensures all provided single-layer rasters have identical extent, resolution,
+Validates that a list of \code{terra::SpatRaster} objects share identical geometry,
 CRS, and dimensions before computing pixel-wise operations.
 }
 \keyword{internal}

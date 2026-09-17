@@ -9,11 +9,12 @@ resolve_bands(
   required_bands,
   custom_mapping = NULL,
   sensor = NULL,
-  index_name = "Index"
+  index_name = "Index",
+  scale_factor = NULL
 )
 }
 \arguments{
-\item{image}{A \code{terra::SpatRaster} object.}
+\item{image}{A \code{terra::SpatRaster} object or file path.}
 
 \item{required_bands}{Character vector of required standardized band names.}
 
@@ -24,6 +25,9 @@ to layer names or layer indices in \code{image}.}
 
 \item{index_name}{Optional character string of the index being calculated (for
 error reporting).}
+
+\item{scale_factor}{Optional numeric scaling divisor (e.g. \code{10000} for
+Sentinel-2 / Landsat L2A products).}
 }
 \value{
 A named list of single-layer \code{terra::SpatRaster} objects.
@@ -31,6 +35,7 @@ A named list of single-layer \code{terra::SpatRaster} objects.
 \description{
 Matches required band roles (e.g., \code{"nir"}, \code{"red"}) against the layers
 of a \code{terra::SpatRaster} using custom user mapping, sensor presets, or
-heuristic name aliases.
+heuristic name aliases. Optionally applies a scale factor (e.g. \code{10000}) to
+convert raw integer Digital Numbers into physical reflectance \code{[0, 1]}.
 }
 \keyword{internal}

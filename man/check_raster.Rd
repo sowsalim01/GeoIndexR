@@ -4,12 +4,15 @@
 \alias{check_raster}
 \title{Check that an object is a SpatRaster}
 \usage{
-check_raster(x, name = "image")
+check_raster(x, arg_name = "image")
 }
 \arguments{
 \item{x}{Object to check.}
 
-\item{name}{Name of argument for error message.}
+\item{arg_name}{Name of the argument in the calling function.}
+}
+\value{
+Invisible \code{TRUE} if valid; throws an error otherwise.
 }
 \description{
 Check that an object is a SpatRaster
