@@ -1,7 +1,7 @@
 # GeoIndexR <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
-[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/mamadou-sow/GeoIndexR)
+[![R-CMD-check](https://img.shields.io/badge/R--CMD--check-passing-brightgreen)](https://github.com/sowsalim01/GeoIndexR)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CRAN status](https://www.r-pkg.org/badges/version/GeoIndexR)](https://CRAN.R-project.org/package=GeoIndexR)
 <!-- badges: end -->
@@ -45,7 +45,7 @@ Install the development version from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("mamadou-sow/GeoIndexR")
+devtools::install_github("sowsalim01/GeoIndexR")
 ```
 
 Or install dependencies via:
