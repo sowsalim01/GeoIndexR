@@ -1,0 +1,8 @@
+^cadrage\.txt$
+^\.git$
+^\.gitignore$
+^\.Rhistory$
+^\.Rproj\.user$
+^.*\.Rproj$
+^cran-comments\.md$
+^data-raw$

@@ -1,0 +1,110 @@
+---
+title: "Vegetation Indices in GeoIndexR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vegetation Indices in GeoIndexR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+Vegetation indices exploit the distinct spectral reflectance curve of healthy green canopies: strong absorption in the red chlorophyll band (0.64 - 0.67 um) and high scattering/reflectance in the near-infrared (NIR) plateau (0.85 - 0.88 um).
+
+`GeoIndexR` provides four primary vegetation indices, each tailored to different canopy densities and atmospheric or soil conditions:
+
+1. **NDVI**: Normalized Difference Vegetation Index
+2. **SAVI**: Soil Adjusted Vegetation Index
+3. **EVI**: Enhanced Vegetation Index
+4. **GNDVI**: Green Normalized Difference Vegetation Index
+
+---
+
+## Formulations and Parameters
+
+### 1. NDVI (Normalized Difference Vegetation Index)
+
+Rouse et al. (1974) formulated the normalized ratio:
+
+$$\text{NDVI} = \frac{\text{NIR} - \text{RED}}{\text{NIR} + \text{RED}}$$
+
+- Theoretical range: $[-1, 1]$
+- Values typically range from $0.2$ to $0.8$ for photosynthetically active green vegetation.
+
+```{r ndvi_example}
+library(GeoIndexR)
+img <- get_example_data()
+
+ndvi <- geo_index(img, "NDVI")
+index_summary(ndvi)
+```
+
+---
+
+### 2. SAVI (Soil Adjusted Vegetation Index)
+
+In areas with sparse or intermediate canopy cover ($< 40\%$), exposed background soil alters the red and near-infrared reflectance. Huete (1988) introduced the soil adjustment factor $L$:
+
+$$\text{SAVI} = \frac{\text{NIR} - \text{RED}}{\text{NIR} + \text{RED} + L} \times (1 + L)$$
+
+- $L = 0.5$ is standard and optimal for intermediate vegetation density.
+- $L \to 0$ approaches NDVI (dense cover), whereas $L = 1.0$ is suitable for very sparse vegetation.
+
+In `GeoIndexR`, $L$ is configurable directly through `geo_index()` or `calc_savi()`:
+
+```{r savi_example}
+savi_standard <- geo_index(img, "SAVI", L = 0.5)
+savi_sparse   <- geo_index(img, "SAVI", L = 1.0)
+
+index_summary(c(savi_standard, savi_sparse))
+```
+
+---
+
+### 3. EVI (Enhanced Vegetation Index)
+
+Liu & Huete (1995) designed EVI to decouple the canopy background signal and reduce atmospheric influences through blue band feedback:
+
+$$\text{EVI} = G \times \frac{\text{NIR} - \text{RED}}{\text{NIR} + C_1 \times \text{RED} - C_2 \times \text{BLUE} + L}$$
+
+Default coefficients (standard MODIS/Sentinel-2/Landsat):
+- $G = 2.5$ (Gain factor)
+- $C_1 = 6.0$ (Aerosol coefficient for red)
+- $C_2 = 7.5$ (Aerosol coefficient for blue)
+- $L = 1.0$ (Canopy background adjustment)
+
+```{r evi_example}
+evi <- geo_index(img, "EVI")
+index_summary(evi)
+```
+
+---
+
+### 4. GNDVI (Green NDVI)
+
+Gitelson et al. (1996) substituted the red band with the green band to enhance sensitivity to chlorophyll concentrations in dense canopies where red reflectance becomes saturated:
+
+$$\text{GNDVI} = \frac{\text{NIR} - \text{GREEN}}{\text{NIR} + \text{GREEN}}$$
+
+```{r gndvi_example}
+gndvi <- geo_index(img, "GNDVI")
+index_summary(gndvi)
+```
+
+---
+
+## Comparing Vegetation Indices
+
+You can stack all four indices together:
+
+```{r comparison}
+veg_stack <- geo_indices(img, c("NDVI", "SAVI", "EVI", "GNDVI"))
+index_summary(veg_stack)
+```

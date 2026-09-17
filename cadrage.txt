@@ -1,0 +1,1663 @@
+# PROMPT DE CADRAGE COMPLET DU PROJET — GeoIndexR
+
+## 1. IDENTITÉ DU PROJET
+
+Je souhaite développer un package R open source nommé **GeoIndexR**.
+
+Le package doit être conçu comme un package R professionnel, robuste, documenté et potentiellement publiable sur **CRAN**.
+
+### Nom
+
+`GeoIndexR`
+
+### Domaine
+
+* Télédétection
+* Géomatique
+* Analyse d'images satellitaires
+* Données raster
+* Data Science géospatiale
+* Calcul d'indices spectraux
+
+### Objectif général
+
+GeoIndexR doit permettre aux utilisateurs de calculer facilement, de manière fiable et reproductible, différents **indices spectraux et géospatiaux** à partir de données raster provenant notamment de satellites ou de capteurs multispectraux.
+
+L'objectif n'est pas seulement de créer une fonction NDVI.
+
+Le package doit fournir une **architecture générique de calcul d'indices**, permettant d'ajouter facilement de nouveaux indices au fil des versions.
+
+---
+
+# 2. PROBLÈME À RÉSOUDRE
+
+Le calcul d'indices spectraux est très fréquent en télédétection.
+
+Cependant, l'utilisateur doit souvent :
+
+1. charger une image raster ;
+2. identifier les bandes ;
+3. connaître la formule de l'indice ;
+4. sélectionner les bonnes bandes ;
+5. effectuer le calcul ;
+6. gérer les valeurs NA ;
+7. conserver la projection et la résolution ;
+8. sauvegarder le résultat ;
+9. visualiser le résultat ;
+10. répéter ces opérations pour plusieurs indices.
+
+GeoIndexR doit simplifier ce workflow.
+
+L'utilisateur doit pouvoir passer de :
+
+```text
+Image satellite
+      ↓
+Identification des bandes
+      ↓
+Choix de l'indice
+      ↓
+Calcul
+      ↓
+Raster résultat
+```
+
+avec un minimum de code.
+
+---
+
+# 3. OBJECTIF PRINCIPAL
+
+Le package doit permettre des appels simples comme :
+
+```r
+library(GeoIndexR)
+
+ndvi <- geo_index(
+  image,
+  index = "NDVI"
+)
+```
+
+ou :
+
+```r
+ndvi <- ndvi(
+  nir = nir,
+  red = red
+)
+```
+
+et :
+
+```r
+indices <- geo_indices(
+  image,
+  indices = c("NDVI", "NDWI", "NDBI")
+)
+```
+
+Le package doit retourner des objets raster correctement géoréférencés.
+
+---
+
+# 4. TECHNOLOGIE PRINCIPALE
+
+Le package doit être développé en **R**.
+
+La gestion des données raster doit privilégier les technologies modernes de l'écosystème R.
+
+Le package doit notamment envisager l'utilisation de :
+
+* `terra`
+* `sf` lorsque les données vectorielles sont nécessaires
+* `Rcpp` uniquement si un gain de performance réel est démontré
+* `testthat` pour les tests
+* `roxygen2` pour la documentation
+* `pkgdown` pour le site de documentation
+* `covr` pour la couverture des tests
+* `devtools` pour le développement et les contrôles
+
+Éviter les dépendances inutiles.
+
+Le package doit privilégier une architecture légère.
+
+---
+
+# 5. TYPES DE DONNÉES ACCEPTÉS
+
+GeoIndexR doit principalement accepter :
+
+### Raster
+
+* `SpatRaster`
+* raster mono-bande
+* raster multibande
+
+Formats potentiels :
+
+* GeoTIFF
+* COG lorsque compatible avec `terra`
+* autres formats raster supportés par GDAL/terra
+
+### Bandes
+
+Le package doit pouvoir travailler avec des bandes représentées par :
+
+```r
+SpatRaster
+```
+
+ou individuellement :
+
+```r
+nir
+red
+green
+blue
+swir1
+swir2
+rededge
+```
+
+---
+
+# 6. INDICES À IMPLÉMENTER INITIALEMENT
+
+La première version doit rester maîtrisable.
+
+Commencer par un ensemble d'indices bien définis et correctement documentés.
+
+## 6.1 Végétation
+
+### NDVI
+
+Normalized Difference Vegetation Index
+
+Formule :
+
+```text
+NDVI = (NIR - RED) / (NIR + RED)
+```
+
+Utilisation :
+
+* végétation
+* vigueur végétative
+* suivi agricole
+
+---
+
+### SAVI
+
+Soil Adjusted Vegetation Index
+
+```text
+SAVI = ((NIR - RED) / (NIR + RED + L)) × (1 + L)
+```
+
+Le paramètre `L` doit être configurable.
+
+Par défaut :
+
+```r
+L = 0.5
+```
+
+---
+
+### EVI
+
+Enhanced Vegetation Index
+
+```text
+EVI = G × (NIR - RED) /
+      (NIR + C1 × RED - C2 × BLUE + L)
+```
+
+Les paramètres doivent être configurables.
+
+Valeurs par défaut classiques :
+
+```text
+G  = 2.5
+C1 = 6
+C2 = 7.5
+L  = 1
+```
+
+---
+
+### GNDVI
+
+```text
+GNDVI = (NIR - GREEN) / (NIR + GREEN)
+```
+
+---
+
+## 6.2 Eau
+
+### NDWI
+
+```text
+NDWI = (GREEN - NIR) / (GREEN + NIR)
+```
+
+Documenter clairement la définition utilisée.
+
+Le package doit éviter toute ambiguïté entre les différentes variantes d'indices portant le même acronyme.
+
+---
+
+### MNDWI
+
+Modified Normalized Difference Water Index
+
+```text
+MNDWI = (GREEN - SWIR) / (GREEN + SWIR)
+```
+
+---
+
+## 6.3 Urbanisation
+
+### NDBI
+
+Normalized Difference Built-up Index
+
+```text
+NDBI = (SWIR - NIR) / (SWIR + NIR)
+```
+
+---
+
+## 6.4 Sols
+
+### BSI
+
+Bare Soil Index
+
+Implémenter la formule choisie et la documenter précisément.
+
+---
+
+## 6.5 Humidité
+
+### NDMI
+
+Normalized Difference Moisture Index
+
+```text
+NDMI = (NIR - SWIR) / (NIR + SWIR)
+```
+
+---
+
+# 7. ARCHITECTURE DES INDICES
+
+Ne pas coder chaque indice comme une fonction totalement indépendante sans architecture commune.
+
+Créer un système centralisé.
+
+Par exemple :
+
+```r
+index_registry()
+```
+
+Cette fonction doit permettre de récupérer les informations relatives aux indices disponibles.
+
+Exemple :
+
+```r
+index_registry()
+```
+
+pourrait retourner :
+
+```text
+NDVI
+NDWI
+MNDWI
+NDBI
+SAVI
+EVI
+GNDVI
+BSI
+NDMI
+```
+
+---
+
+# 8. FONCTION CENTRALE
+
+Créer une fonction principale :
+
+```r
+geo_index()
+```
+
+Exemple :
+
+```r
+geo_index(
+    image = image,
+    index = "NDVI"
+)
+```
+
+Cette fonction doit :
+
+1. vérifier l'entrée ;
+2. identifier l'indice ;
+3. identifier les bandes nécessaires ;
+4. vérifier que les bandes sont disponibles ;
+5. appliquer la formule ;
+6. gérer les NA ;
+7. conserver les propriétés spatiales ;
+8. retourner le résultat.
+
+---
+
+# 9. CALCUL DIRECT PAR BANDES
+
+Prévoir également une API permettant de calculer directement un indice à partir de bandes.
+
+Exemple :
+
+```r
+calc_ndvi(
+    nir = nir,
+    red = red
+)
+```
+
+ou une API générique :
+
+```r
+calc_index(
+    index = "NDVI",
+    nir = nir,
+    red = red
+)
+```
+
+L'objectif est de permettre deux usages :
+
+### Usage 1 — raster multibande
+
+```r
+geo_index(image, "NDVI")
+```
+
+### Usage 2 — bandes explicites
+
+```r
+geo_index(
+    index = "NDVI",
+    nir = nir,
+    red = red
+)
+```
+
+---
+
+# 10. NOMMAGE DES BANDES
+
+Le package doit pouvoir reconnaître des noms de bandes.
+
+Exemple :
+
+```text
+B02 = Blue
+B03 = Green
+B04 = Red
+B08 = NIR
+B11 = SWIR1
+B12 = SWIR2
+```
+
+Prévoir un système de correspondance.
+
+Par exemple :
+
+```r
+band_mapping()
+```
+
+ou :
+
+```r
+set_band_mapping()
+```
+
+L'utilisateur doit pouvoir définir explicitement son propre mapping.
+
+Exemple :
+
+```r
+mapping <- c(
+    blue = "B02",
+    green = "B03",
+    red = "B04",
+    nir = "B08",
+    swir1 = "B11",
+    swir2 = "B12"
+)
+```
+
+Puis :
+
+```r
+geo_index(
+    image,
+    index = "NDVI",
+    bands = mapping
+)
+```
+
+---
+
+# 11. SUPPORT DES CAPTEURS
+
+Prévoir une architecture permettant de supporter plusieurs satellites/capteurs.
+
+Par exemple :
+
+```r
+sensor = "sentinel2"
+```
+
+ou :
+
+```r
+sensor = "landsat8"
+```
+
+Le package pourra ensuite connaître automatiquement les bandes correspondantes.
+
+Exemple :
+
+```r
+geo_index(
+    image,
+    index = "NDVI",
+    sensor = "sentinel2"
+)
+```
+
+Cependant, cette fonctionnalité peut être limitée ou désactivée dans la première version si elle complexifie trop le projet.
+
+Elle doit être prévue dans l'architecture pour les futures versions.
+
+---
+
+# 12. CALCUL DE PLUSIEURS INDICES
+
+Créer une fonction :
+
+```r
+geo_indices()
+```
+
+Exemple :
+
+```r
+result <- geo_indices(
+    image,
+    indices = c(
+        "NDVI",
+        "NDWI",
+        "NDBI",
+        "NDMI"
+    )
+)
+```
+
+Le résultat pourrait être un `SpatRaster` multibande.
+
+Les noms des couches doivent être :
+
+```text
+NDVI
+NDWI
+NDBI
+NDMI
+```
+
+---
+
+# 13. CALCUL AUTOMATIQUE
+
+Prévoir une fonction :
+
+```r
+geo_index_all()
+```
+
+qui calcule tous les indices compatibles avec les bandes disponibles.
+
+Exemple :
+
+```r
+result <- geo_index_all(image)
+```
+
+Le package doit déterminer automatiquement les indices possibles.
+
+Par exemple, si l'image contient :
+
+```text
+Blue
+Green
+Red
+NIR
+SWIR
+```
+
+le package peut calculer les indices compatibles.
+
+---
+
+# 14. VALIDATION DES DONNÉES
+
+Une partie importante du projet doit être la validation.
+
+Le package doit vérifier :
+
+* type de l'objet ;
+* nombre de bandes ;
+* noms des bandes ;
+* dimensions ;
+* résolution ;
+* CRS ;
+* extent ;
+* valeurs NA ;
+* valeurs infinies ;
+* incompatibilité entre bandes ;
+* bandes manquantes.
+
+Exemple d'erreur :
+
+```text
+Error:
+NDVI requires the following bands:
+NIR and RED.
+
+Available bands:
+BLUE, GREEN, RED.
+
+Missing band:
+NIR.
+```
+
+Les messages d'erreur doivent être clairs et compréhensibles.
+
+---
+
+# 15. GESTION DES VALEURS
+
+Le package doit gérer correctement :
+
+```text
+NA
+NaN
+Inf
+-Inf
+```
+
+Éviter les divisions par zéro.
+
+Par exemple :
+
+```text
+NIR + RED = 0
+```
+
+ne doit pas générer silencieusement des valeurs infinies.
+
+Définir un comportement cohérent et le documenter.
+
+---
+
+# 16. VALEURS DE RÉFLECTANCE
+
+Le package doit fonctionner avec des valeurs de réflectance.
+
+Documenter clairement la question du scaling.
+
+Certaines images satellites sont stockées sous forme :
+
+```text
+0 – 10000
+```
+
+alors que la réflectance peut être :
+
+```text
+0 – 1
+```
+
+Le package doit expliquer que les indices normalisés comme NDVI sont généralement invariants à un facteur multiplicatif commun, mais que les indices comportant des constantes additives, comme EVI/SAVI, peuvent nécessiter une attention particulière.
+
+Ne jamais appliquer automatiquement un scaling sans que le comportement soit explicite et documenté.
+
+---
+
+# 17. SORTIE
+
+Les fonctions doivent retourner des objets `SpatRaster`.
+
+Exemple :
+
+```r
+ndvi <- geo_index(image, "NDVI")
+```
+
+Le résultat doit conserver :
+
+* CRS ;
+* résolution ;
+* extent ;
+* dimensions ;
+* géoréférencement.
+
+Le nom de la couche doit correspondre à l'indice.
+
+---
+
+# 18. SAUVEGARDE
+
+Prévoir éventuellement une fonction :
+
+```r
+save_geo_index()
+```
+
+ou permettre à l'utilisateur de sauvegarder directement avec :
+
+```r
+terra::writeRaster()
+```
+
+Ne pas créer une abstraction inutile si `terra` fournit déjà correctement cette fonctionnalité.
+
+Le package doit éviter de réimplémenter inutilement les fonctionnalités de `terra`.
+
+---
+
+# 19. VISUALISATION
+
+Créer éventuellement une fonction simple :
+
+```r
+plot_index()
+```
+
+Exemple :
+
+```r
+plot_index(ndvi)
+```
+
+La fonction pourrait fournir une visualisation adaptée à l'indice.
+
+Cependant, cette fonctionnalité doit rester légère.
+
+Ne pas transformer GeoIndexR en package complet de cartographie.
+
+Pour les cartes avancées, l'utilisateur pourra continuer à utiliser :
+
+* `terra`
+* `tmap`
+* `ggplot2`
+* `mapview`
+
+---
+
+# 20. STATISTIQUES D'INDICES
+
+Prévoir éventuellement :
+
+```r
+index_summary()
+```
+
+Exemple :
+
+```r
+index_summary(ndvi)
+```
+
+Résultat :
+
+```text
+Index: NDVI
+
+Minimum : -0.92
+Maximum :  0.97
+Mean    :  0.43
+Median  : 0.48
+NA      : 2.1 %
+```
+
+Cette fonction doit être optionnelle dans la première version si elle alourdit le développement.
+
+---
+
+# 21. ARCHITECTURE DU PACKAGE
+
+Créer une structure propre :
+
+```text
+GeoIndexR/
+│
+├── DESCRIPTION
+├── NAMESPACE
+├── LICENSE
+├── README.md
+├── NEWS.md
+├── cran-comments.md
+├── .Rbuildignore
+├── .gitignore
+│
+├── R/
+│   ├── geo_index.R
+│   ├── geo_indices.R
+│   ├── geo_index_all.R
+│   ├── calc_indices.R
+│   ├── index_registry.R
+│   ├── band_mapping.R
+│   ├── validation.R
+│   ├── utils.R
+│   └── plotting.R
+│
+├── man/
+│
+├── tests/
+│   └── testthat/
+│       ├── test-ndvi.R
+│       ├── test-ndwi.R
+│       ├── test-ndbi.R
+│       ├── test-savi.R
+│       ├── test-evi.R
+│       ├── test-validation.R
+│       └── test-multiple-indices.R
+│
+├── vignettes/
+│   ├── introduction.Rmd
+│   ├── vegetation-indices.Rmd
+│   ├── water-indices.Rmd
+│   └── multispectral-workflow.Rmd
+│
+├── data-raw/
+│
+├── data/
+│
+└── inst/
+```
+
+Adapter la structure selon les bonnes pratiques R.
+
+---
+
+# 22. DONNÉES DE TEST
+
+Le package doit disposer de petites données reproductibles.
+
+Ne jamais intégrer de grosses images satellite dans le package.
+
+Créer de petits rasters artificiels ou de petites données adaptées aux tests.
+
+Exemple :
+
+```r
+example_multispectral
+```
+
+avec des bandes :
+
+```text
+blue
+green
+red
+nir
+swir1
+swir2
+```
+
+Les données doivent être suffisamment petites pour que :
+
+```r
+R CMD check
+```
+
+reste rapide.
+
+---
+
+# 23. TESTS UNITAIRES
+
+Chaque indice doit avoir des tests.
+
+Exemple :
+
+```r
+test_that("NDVI is correctly calculated", {
+    result <- calc_ndvi(nir, red)
+
+    expect_true(inherits(result, "SpatRaster"))
+    expect_equal(...)
+})
+```
+
+Tester notamment :
+
+* formule ;
+* type de sortie ;
+* dimensions ;
+* CRS ;
+* valeurs attendues ;
+* NA ;
+* division par zéro ;
+* bandes absentes ;
+* raster incompatible.
+
+---
+
+# 24. TESTS SCIENTIFIQUES
+
+Pour chaque indice, utiliser des valeurs connues.
+
+Exemple NDVI :
+
+```text
+NIR = 0.8
+RED = 0.2
+```
+
+alors :
+
+```text
+NDVI = (0.8 - 0.2) / (0.8 + 0.2)
+     = 0.6
+```
+
+Les tests doivent vérifier que le package produit correctement ce résultat.
+
+---
+
+# 25. DOCUMENTATION
+
+Toutes les fonctions publiques doivent être documentées avec `roxygen2`.
+
+Chaque indice doit avoir :
+
+* définition ;
+* formule ;
+* variables nécessaires ;
+* interprétation ;
+* limites ;
+* exemple reproductible ;
+* références bibliographiques lorsque nécessaire.
+
+Exemple :
+
+```r
+#' Calculate NDVI
+#'
+#' Computes the Normalized Difference Vegetation Index.
+#'
+#' @param nir Near-infrared band.
+#' @param red Red band.
+#'
+#' @return A SpatRaster containing NDVI values.
+```
+
+---
+
+# 26. VIGNETTES
+
+Créer plusieurs vignettes.
+
+### Vignette 1
+
+```text
+Introduction to GeoIndexR
+```
+
+Montrer :
+
+```r
+library(GeoIndexR)
+
+ndvi <- geo_index(
+    image,
+    "NDVI"
+)
+```
+
+### Vignette 2
+
+```text
+Vegetation indices
+```
+
+Présenter :
+
+* NDVI
+* SAVI
+* EVI
+* GNDVI
+
+### Vignette 3
+
+```text
+Water and moisture indices
+```
+
+Présenter :
+
+* NDWI
+* MNDWI
+* NDMI
+
+### Vignette 4
+
+```text
+Multispectral image workflow
+```
+
+Présenter un workflow complet :
+
+```text
+Image
+ ↓
+Band identification
+ ↓
+Index selection
+ ↓
+Calculation
+ ↓
+Validation
+ ↓
+Visualization
+ ↓
+Export
+```
+
+---
+
+# 27. README
+
+Le README doit présenter immédiatement :
+
+### GeoIndexR
+
+> A simple and extensible R package for computing spectral indices from multispectral raster data.
+
+Puis :
+
+* installation ;
+* exemple rapide ;
+* indices disponibles ;
+* fonctionnalités ;
+* exemples ;
+* contribution ;
+* licence ;
+* statut du projet.
+
+---
+
+# 28. EXEMPLE MINIMAL
+
+Le README doit permettre à un nouvel utilisateur de comprendre le package en moins d'une minute.
+
+Exemple :
+
+```r
+library(GeoIndexR)
+library(terra)
+
+image <- rast("sentinel2.tif")
+
+ndvi <- geo_index(
+    image,
+    index = "NDVI"
+)
+
+plot(ndvi)
+```
+
+Puis :
+
+```r
+indices <- geo_indices(
+    image,
+    indices = c("NDVI", "NDWI", "NDBI")
+)
+
+plot(indices)
+```
+
+---
+
+# 29. EXTENSIBILITÉ
+
+L'architecture doit permettre d'ajouter facilement de nouveaux indices.
+
+Ajouter un indice ne devrait pas nécessiter de modifier toute l'architecture.
+
+Prévoir un système conceptuel de registre :
+
+```text
+Index
+│
+├── name
+├── description
+├── formula
+├── required_bands
+├── category
+├── parameters
+└── function
+```
+
+Catégories possibles :
+
+```text
+vegetation
+water
+soil
+urban
+moisture
+burn
+salinity
+```
+
+---
+
+# 30. FUTURES VERSIONS
+
+Ne pas implémenter toutes les fonctionnalités immédiatement.
+
+Prévoir une roadmap.
+
+### Version 0.1.0
+
+Fonctionnalités fondamentales :
+
+* NDVI
+* NDWI
+* NDBI
+* NDMI
+* SAVI
+* EVI
+* GNDVI
+* MNDWI
+* registre des indices
+* validation
+* calcul mono-indice
+* calcul multi-indices
+* tests
+* documentation
+
+### Version 0.2.0
+
+Ajouter :
+
+* davantage d'indices ;
+* support amélioré des capteurs ;
+* mapping automatique des bandes ;
+* statistiques ;
+* améliorations de performance.
+
+### Version 0.3.0
+
+Ajouter éventuellement :
+
+* indices de salinité ;
+* indices de brûlis ;
+* indices agricoles ;
+* séries temporelles.
+
+### Version 1.0.0
+
+Objectif :
+
+```text
+API stable
+Documentation complète
+Tests robustes
+CRAN-ready
+```
+
+---
+
+# 31. PERFORMANCE
+
+Le package doit être conçu pour fonctionner sur de grands rasters.
+
+Éviter :
+
+```r
+for (...)
+```
+
+pixel par pixel lorsque `terra` permet des opérations vectorisées.
+
+Privilégier les opérations raster natives.
+
+Exemple conceptuel :
+
+```r
+ndvi <- (nir - red) / (nir + red)
+```
+
+plutôt qu'une boucle R sur chaque pixel.
+
+Pour les très grandes images, tenir compte de la gestion mémoire de `terra`.
+
+---
+
+# 32. REPRODUCTIBILITÉ
+
+Les résultats doivent être reproductibles.
+
+Éviter :
+
+* comportements implicites ;
+* transformations silencieuses ;
+* modification automatique des données ;
+* paramètres cachés.
+
+Les opérations importantes doivent être explicites.
+
+---
+
+# 33. QUALITÉ SCIENTIFIQUE
+
+Chaque indice doit être associé à une référence scientifique fiable.
+
+Pour chaque indice documenter :
+
+```text
+Nom
+Formule
+Bandes nécessaires
+Domaine d'application
+Intervalle théorique ou comportement attendu
+Limites
+Référence
+```
+
+Attention aux indices ayant plusieurs variantes.
+
+Par exemple, lorsqu'un même acronyme peut désigner plusieurs formules, le package doit :
+
+1. choisir une définition précise ;
+2. la documenter ;
+3. indiquer la variante ;
+4. éventuellement permettre plusieurs variantes dans une future version.
+
+---
+
+# 34. CONCEPTION DE L'API
+
+L'API doit rester simple.
+
+Le principe général doit être :
+
+```r
+geo_index()
+geo_indices()
+geo_index_all()
+index_registry()
+```
+
+Les fonctions spécialisées peuvent être utilisées pour les utilisateurs avancés :
+
+```r
+calc_ndvi()
+calc_ndwi()
+calc_ndbi()
+calc_savi()
+calc_evi()
+```
+
+Mais l'utilisateur débutant ne doit pas avoir besoin de connaître toutes ces fonctions.
+
+---
+
+# 35. EXEMPLE D'UTILISATION AVANCÉ
+
+Prévoir un workflow de ce type :
+
+```r
+library(GeoIndexR)
+library(terra)
+
+image <- rast("sentinel2.tif")
+
+mapping <- c(
+    blue = "B02",
+    green = "B03",
+    red = "B04",
+    nir = "B08",
+    swir1 = "B11",
+    swir2 = "B12"
+)
+
+indices <- geo_indices(
+    image = image,
+    indices = c(
+        "NDVI",
+        "NDWI",
+        "NDBI",
+        "NDMI"
+    ),
+    bands = mapping
+)
+
+plot(indices)
+```
+
+---
+
+# 36. EXEMPLE D'APPLICATION AGRICOLE
+
+Prévoir dans la documentation un exemple conceptuel :
+
+```text
+Image Sentinel-2
+        ↓
+NDVI
+        ↓
+Analyse de la végétation
+        ↓
+Identification des zones à faible vigueur
+        ↓
+Analyse agricole
+```
+
+Le package ne doit cependant pas prétendre interpréter automatiquement l'état agronomique sans données supplémentaires.
+
+---
+
+# 37. EXEMPLE D'APPLICATION URBAINE
+
+Exemple :
+
+```text
+Image satellite
+      ↓
+NDBI
+      ↓
+Extraction des zones bâties
+      ↓
+Analyse de l'expansion urbaine
+```
+
+---
+
+# 38. EXEMPLE D'APPLICATION HYDROLOGIQUE
+
+Exemple :
+
+```text
+Image satellite
+      ↓
+NDWI / MNDWI
+      ↓
+Détection des surfaces en eau
+      ↓
+Analyse spatiale
+```
+
+---
+
+# 39. LIMITES À DOCUMENTER
+
+Le package doit clairement préciser qu'un indice spectral n'est pas une vérité absolue.
+
+Les résultats dépendent notamment :
+
+* du capteur ;
+* de la qualité radiométrique ;
+* de la correction atmosphérique ;
+* des nuages ;
+* des ombres ;
+* de la résolution spatiale ;
+* de la résolution spectrale ;
+* de la date d'acquisition ;
+* du prétraitement ;
+* du choix des bandes.
+
+GeoIndexR calcule les indices.
+
+Il ne doit pas présenter automatiquement leurs résultats comme une interprétation scientifique définitive.
+
+---
+
+# 40. COMPATIBILITÉ CRAN
+
+Le package doit être développé en gardant CRAN à l'esprit dès le début.
+
+Avant publication, effectuer :
+
+```r
+devtools::document()
+devtools::test()
+devtools::check()
+```
+
+Puis vérifier :
+
+```text
+R CMD check
+```
+
+Corriger :
+
+* ERROR
+* WARNING
+* NOTE
+
+Éviter les dépendances inutiles.
+
+Les exemples doivent être rapides.
+
+Les tests doivent être rapides.
+
+Les fichiers inclus doivent rester légers.
+
+---
+
+# 41. LICENCE
+
+Utiliser une licence open source compatible avec CRAN.
+
+Une option possible :
+
+```text
+MIT
+```
+
+ou une licence appropriée selon les objectifs du projet.
+
+Le choix final doit être fait avant publication.
+
+---
+
+# 42. GITHUB
+
+Créer un dépôt :
+
+```text
+GeoIndexR
+```
+
+Organisation recommandée :
+
+```text
+README.md
+DESCRIPTION
+LICENSE
+R/
+tests/
+vignettes/
+data/
+.github/
+```
+
+Ajouter éventuellement GitHub Actions pour :
+
+* tests ;
+* R CMD check ;
+* vérification sur plusieurs versions de R.
+
+---
+
+# 43. SITE DE DOCUMENTATION
+
+Après stabilisation :
+
+```text
+pkgdown
+```
+
+Créer un site de documentation.
+
+Sections :
+
+```text
+Home
+Reference
+Articles
+News
+```
+
+Les fonctions principales doivent être facilement accessibles.
+
+---
+
+# 44. STRATÉGIE DE DÉVELOPPEMENT
+
+Ne pas développer tout le package en une seule fois.
+
+Procéder par étapes.
+
+### Étape 1
+
+Créer le squelette :
+
+```text
+GeoIndexR
+```
+
+### Étape 2
+
+Configurer :
+
+```text
+DESCRIPTION
+NAMESPACE
+LICENSE
+.gitignore
+```
+
+### Étape 3
+
+Installer/configurer les outils :
+
+```text
+devtools
+roxygen2
+testthat
+terra
+pkgdown
+```
+
+### Étape 4
+
+Implémenter le moteur central.
+
+### Étape 5
+
+Implémenter :
+
+```text
+NDVI
+NDWI
+NDBI
+```
+
+### Étape 6
+
+Ajouter :
+
+```text
+NDMI
+MNDWI
+SAVI
+EVI
+GNDVI
+```
+
+### Étape 7
+
+Créer le registre des indices.
+
+### Étape 8
+
+Créer le calcul multi-indices.
+
+### Étape 9
+
+Créer les validations.
+
+### Étape 10
+
+Créer les tests.
+
+### Étape 11
+
+Créer les vignettes.
+
+### Étape 12
+
+Créer le README.
+
+### Étape 13
+
+Effectuer les contrôles CRAN.
+
+### Étape 14
+
+Publier sur GitHub.
+
+### Étape 15
+
+Préparer la soumission CRAN.
+
+---
+
+# 45. RÈGLES DE DÉVELOPPEMENT IMPORTANTES
+
+Pendant le développement :
+
+1. Ne pas écrire de code inutile.
+2. Ne pas créer une fonction uniquement pour quelques lignes si elle n'apporte aucune valeur.
+3. Ne pas multiplier les dépendances.
+4. Privilégier `terra`.
+5. Tester chaque fonctionnalité.
+6. Documenter chaque fonction publique.
+7. Ne jamais cacher les transformations de données.
+8. Produire des messages d'erreur explicites.
+9. Éviter les warnings inutiles.
+10. Préparer le package pour CRAN dès le début.
+11. Ne pas utiliser de données volumineuses dans le package.
+12. Maintenir une API stable et intuitive.
+13. Séparer clairement le calcul scientifique de la visualisation.
+14. Documenter les références scientifiques des indices.
+15. Vérifier les formules mathématiques avant leur implémentation.
+
+---
+
+# 46. CRITÈRES DE RÉUSSITE
+
+Le projet sera considéré comme réussi lorsque l'utilisateur pourra faire :
+
+```r
+library(GeoIndexR)
+
+image <- terra::rast("multispectral.tif")
+
+ndvi <- geo_index(
+    image,
+    "NDVI"
+)
+```
+
+et obtenir immédiatement un `SpatRaster` correctement géoréférencé.
+
+Il devra également pouvoir faire :
+
+```r
+indices <- geo_indices(
+    image,
+    c("NDVI", "NDWI", "NDBI")
+)
+```
+
+et obtenir un raster multibande.
+
+Enfin :
+
+```r
+index_registry()
+```
+
+doit permettre de découvrir les indices disponibles.
+
+---
+
+# 47. VISION À LONG TERME
+
+GeoIndexR doit évoluer vers une bibliothèque R spécialisée dans le calcul d'indices pour la télédétection.
+
+Architecture cible :
+
+```text
+                         GeoIndexR
+                             │
+        ┌────────────────────┼────────────────────┐
+        │                    │                    │
+   Vegetation              Water                Soil
+        │                    │                    │
+ NDVI/SAVI/EVI          NDWI/MNDWI            BSI/...
+        │                    │                    │
+        └────────────────────┼────────────────────┘
+                             │
+                          Urban
+                             │
+                           NDBI
+                             │
+                        Moisture
+                             │
+                           NDMI
+                             │
+                     Future indices
+```
+
+À terme, le package pourra prendre en charge davantage d'indices et différents capteurs, tout en conservant une API simple.
+
+---
+
+# 48. INSTRUCTION FINALE POUR L'IA DE DÉVELOPPEMENT
+
+À partir de ce cadrage, développer **GeoIndexR progressivement**, en respectant les bonnes pratiques de développement de packages R.
+
+Ne pas générer immédiatement tout le projet sans validation.
+
+Commencer par :
+
+1. analyser le cadrage ;
+2. proposer l'architecture technique finale ;
+3. proposer l'arborescence ;
+4. proposer le contenu de `DESCRIPTION` ;
+5. définir l'API publique ;
+6. définir le registre des indices ;
+7. définir les tests ;
+8. définir les dépendances ;
+9. puis commencer l'implémentation par petits modules cohérents.
+
+À chaque étape :
+
+* fournir le code complet des fichiers concernés ;
+* expliquer brièvement leur rôle ;
+* indiquer les commandes R à exécuter ;
+* vérifier les erreurs éventuelles ;
+* ne pas passer à une étape suivante si l'étape courante n'est pas fonctionnelle.
+
+L'objectif final est d'obtenir un package **GeoIndexR propre, scientifique, extensible, testé, documenté, performant et compatible avec les exigences de CRAN**.

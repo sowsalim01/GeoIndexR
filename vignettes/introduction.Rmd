@@ -1,0 +1,99 @@
+---
+title: "Introduction to GeoIndexR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to GeoIndexR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+**GeoIndexR** is a modern, modular, and fast R package designed for computing spectral and geospatial indices from multispectral raster data. Built natively on the powerful `terra` geospatial engine, it operates on `SpatRaster` objects while preserving all georeferencing, projection (CRS), resolution, and spatial extents.
+
+### Key Capabilities
+
+- **Unified high-level API**: Calculate indices using `geo_index()`, `geo_indices()`, or `geo_index_all()`.
+- **Direct band computation**: Vectorized functions like `calc_ndvi()`, `calc_savi()`, `calc_evi()`, and `calc_index()`.
+- **Intelligent band mapping**: Automatic layer matching, case-insensitivity, and preconfigured sensor presets (Sentinel-2, Landsat-8/9, Landsat-5/7).
+- **Safe numerical calculation**: Zero divisions (e.g., $NIR + RED = 0$) and infinite values are converted to `NA` safely without crashing or emitting unhandled warnings.
+- **Summary & Visualization**: Built-in descriptive metrics (`index_summary()`) and thematic color palettes (`plot_index()`).
+
+---
+
+## Quick Start
+
+Let's load `GeoIndexR` and examine the bundled synthetic 6-band multispectral dataset (`example_multispectral`):
+
+```{r setup}
+library(GeoIndexR)
+library(terra)
+
+img <- get_example_data()
+print(img)
+names(img)
+```
+
+### Computing a Single Index
+
+To compute the Normalized Difference Vegetation Index (NDVI):
+
+```{r single_index}
+ndvi <- geo_index(img, "NDVI")
+print(ndvi)
+```
+
+The returned object is a single-layer `SpatRaster` whose layer name matches `"NDVI"`.
+
+### Computing Multiple Indices
+
+You can compute several indices in a single call. The output is a stacked multi-layer `SpatRaster`:
+
+```{r multi_index}
+indices_stack <- geo_indices(img, c("NDVI", "NDWI", "NDBI", "NDMI"))
+print(indices_stack)
+names(indices_stack)
+```
+
+### Automatic Computation of All Eligible Indices
+
+If you have an arbitrary multispectral image and want to discover and compute all indices compatible with the available bands:
+
+```{r all_indices}
+all_indices <- geo_index_all(img, quiet = FALSE)
+names(all_indices)
+```
+
+---
+
+## Exploring the Index Registry
+
+All supported indices are documented in a centralized registry accessible with `index_registry()`:
+
+```{r registry}
+reg <- index_registry()
+reg[, c("index", "name", "category", "required_bands")]
+```
+
+You can filter by category (e.g., `"water"`, `"vegetation"`, `"urban"`):
+
+```{r water_registry}
+index_registry(category = "water")[, c("index", "name", "formula")]
+```
+
+---
+
+## Summary Statistics
+
+The `index_summary()` function computes cell-level summary statistics including minimum, maximum, mean, median, standard deviation, and missing data percentage:
+
+```{r summary}
+index_summary(indices_stack)
+```

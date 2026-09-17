@@ -1,0 +1,120 @@
+---
+title: "End-to-End Multispectral Image Workflow"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{End-to-End Multispectral Image Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This vignette demonstrates a complete workflow for processing multispectral satellite imagery using `GeoIndexR` and `terra`:
+
+1. **Loading** imagery
+2. **Identifying bands** and mapping sensor aliases
+3. **Calculating** targeted and comprehensive indices
+4. **Validating** and summarizing distributions
+5. **Visualizing** results with thematic color maps
+6. **Exporting** georeferenced GeoTIFF files
+
+---
+
+## Step 1: Loading Imagery & Inspecting Bands
+
+```{r load}
+library(GeoIndexR)
+library(terra)
+
+# Load synthetic 6-band multispectral raster
+img <- get_example_data()
+print(img)
+names(img)
+```
+
+---
+
+## Step 2: Band Mapping & Sensor Presets
+
+Satellite images often use sensor-specific band notations (such as `B02`, `B03`, `B04`, `B08` for Sentinel-2, or `B2`, `B3`, `B4`, `B5` for Landsat 8/9).
+
+`GeoIndexR` supports sensor presets:
+
+```{r mapping}
+# View pre-configured Sentinel-2 bands
+band_mapping("sentinel2")
+
+# View pre-configured Landsat 8/9 bands
+band_mapping("landsat8")
+```
+
+If your image layers use non-standard names, you can pass a custom named vector:
+
+```{r custom_map}
+my_mapping <- c(
+  blue  = "blue",
+  green = "green",
+  red   = "red",
+  nir   = "nir",
+  swir  = "swir1"
+)
+```
+
+---
+
+## Step 3: Computing Multiple Indices
+
+Compute a multi-index suite covering vegetation, water, urban built-up, and soil:
+
+```{r compute}
+indices <- geo_indices(
+  image   = img,
+  indices = c("NDVI", "NDWI", "NDBI", "SAVI", "BSI"),
+  bands   = my_mapping
+)
+
+print(indices)
+names(indices)
+```
+
+---
+
+## Step 4: Summary Statistics
+
+Use `index_summary()` to inspect the distributions across all computed layers:
+
+```{r summary}
+stats <- index_summary(indices)
+print(stats)
+```
+
+---
+
+## Step 5: Visualization
+
+`plot_index()` applies scientifically tailored palettes based on index categories:
+
+```{r plotting, fig.width=6, fig.height=5}
+# Visualizing NDVI
+plot_index(indices, index = "NDVI")
+```
+
+---
+
+## Step 6: Exporting with `terra::writeRaster`
+
+Since all outputs returned by `GeoIndexR` are standard `terra::SpatRaster` objects with full CRS and geotransform preservation, saving results to GeoTIFF or COG is simple:
+
+```r
+# Export the multilayer raster to GeoTIFF
+terra::writeRaster(indices, "computed_indices.tif", overwrite = TRUE)
+```
+
+This ensures complete compatibility with GDAL, QGIS, ArcGIS, Python rasterio, and web mapping services.

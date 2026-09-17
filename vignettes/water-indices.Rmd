@@ -1,0 +1,82 @@
+---
+title: "Water and Moisture Indices in GeoIndexR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Water and Moisture Indices in GeoIndexR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+Delineating water bodies and tracking moisture conditions are foundational tasks in hydrology, wetland monitoring, and irrigation management. `GeoIndexR` implements three key indices:
+
+1. **NDWI** (Normalized Difference Water Index, McFeeters 1996)
+2. **MNDWI** (Modified Normalized Difference Water Index, Xu 2006)
+3. **NDMI** (Normalized Difference Moisture Index, Gao 1996)
+
+---
+
+## 1. NDWI (McFeeters, 1996)
+
+McFeeters designed NDWI to delineate open water features by maximizing green band reflectance and minimizing NIR reflectance:
+
+$$\text{NDWI} = \frac{\text{GREEN} - \text{NIR}}{\text{GREEN} + \text{NIR}}$$
+
+Water bodies typically have positive NDWI values ($\text{NDWI} > 0$), while terrestrial vegetation and dry soil display negative values.
+
+```{r ndwi}
+library(GeoIndexR)
+img <- get_example_data()
+
+ndwi <- geo_index(img, "NDWI")
+index_summary(ndwi)
+```
+
+---
+
+## 2. MNDWI (Xu, 2006)
+
+In urbanized and complex landscapes, built-up surfaces often produce false positive signals under classical NDWI. Xu (2006) replaced the NIR band with the Shortwave Infrared (SWIR) band:
+
+$$\text{MNDWI} = \frac{\text{GREEN} - \text{SWIR}}{\text{GREEN} + \text{SWIR}}$$
+
+Because built-up areas reflect strongly in SWIR, their MNDWI values are negative, clearly separating urban structures from open water.
+
+```{r mndwi}
+mndwi <- geo_index(img, "MNDWI")
+index_summary(mndwi)
+```
+
+---
+
+## 3. NDMI (Gao, 1996)
+
+The Normalized Difference Moisture Index monitors vegetation liquid water content:
+
+$$\text{NDMI} = \frac{\text{NIR} - \text{SWIR}}{\text{NIR} + \text{SWIR}}$$
+
+Higher values indicate well-hydrated vegetation canopies, whereas low or negative values signal drought or water stress.
+
+```{r ndmi}
+ndmi <- geo_index(img, "NDMI")
+index_summary(ndmi)
+```
+
+---
+
+## Multi-Index Stack & Comparison
+
+We can compute and compare water and moisture indices together:
+
+```{r water_comparison}
+water_stack <- geo_indices(img, c("NDWI", "MNDWI", "NDMI"))
+index_summary(water_stack)
+```
