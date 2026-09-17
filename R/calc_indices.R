@@ -695,12 +695,27 @@ calc_index <- function(index, ...) {
     stop("'index' must be a single character string.", call. = FALSE)
   }
 
-  meta <- get_index_meta(index)
-  args <- list(...)
-  names(args) <- tolower(names(args))
+  meta    <- get_index_meta(index)
+  fn_name <- paste0("calc_", tolower(meta$index))
+  fn      <- get(fn_name, mode = "function", envir = asNamespace("GeoIndexR"))
 
-  # Check required bands
-  missing_bands <- setdiff(meta$required_bands, names(args))
+  # Canonical parameter names from the function signature (e.g. "nir", "red", "L", "G", ...)
+  fn_formals <- names(formals(fn))
+
+  args <- list(...)
+
+  # Normalise user-provided argument names: match case-insensitively against the
+  # canonical names in the function signature, then use the canonical form.
+  # This handles both band args (always lowercase: nir, red, blue …) and optional
+  # parameters that may be uppercase or mixed (L, G, C1, C2, theta, gamma …).
+  matched_names <- vapply(names(args), function(nm) {
+    hit <- fn_formals[tolower(fn_formals) == tolower(nm)]
+    if (length(hit) == 1L) hit else nm   # keep original if no match found
+  }, character(1))
+  names(args) <- matched_names
+
+  # Check required bands using lowercase (required_bands are always lowercase)
+  missing_bands <- setdiff(meta$required_bands, tolower(names(args)))
   if (length(missing_bands) > 0) {
     stop(
       sprintf(
@@ -714,10 +729,7 @@ calc_index <- function(index, ...) {
     )
   }
 
-  fn_name <- paste0("calc_", tolower(meta$index))
-  fn <- get(fn_name, mode = "function", envir = asNamespace("GeoIndexR"))
-
-  # Merge default params with provided args
+  # Start from registry defaults, then override with user-supplied values
   call_args <- meta$default_params
   for (arg_name in names(args)) {
     call_args[[arg_name]] <- args[[arg_name]]
@@ -725,3 +737,4 @@ calc_index <- function(index, ...) {
 
   do.call(fn, call_args)
 }
+
