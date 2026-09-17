@@ -7,11 +7,11 @@
 calc_evi(nir, red, blue, G = 2.5, C1 = 6, C2 = 7.5, L = 1)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 
-\item{blue}{Blue band (\code{SpatRaster} or numeric).}
+\item{blue}{Blue band (\code{terra::SpatRaster} or numeric).}
 
 \item{G}{Gain factor. Defaults to \code{2.5}.}
 
@@ -22,21 +22,40 @@ calc_evi(nir, red, blue, G = 2.5, C1 = 6, C2 = 7.5, L = 1)
 \item{L}{Canopy background adjustment. Defaults to \code{1.0}.}
 }
 \value{
-A \code{SpatRaster} (named \code{"EVI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"EVI"}) or numeric vector with index values.
 }
 \description{
-Computes the Enhanced Vegetation Index, optimizing the vegetation signal with
-improved sensitivity in high biomass regions and reduced atmospheric influences.
-Note: Band values must represent surface reflectance \code{[0, 1]}.
+Computes the Enhanced Vegetation Index (EVI), optimizing the vegetation signal with
+improved sensitivity in high biomass regions and reduced atmospheric aerosol influences.
 }
 \details{
 \deqn{EVI = G \times \frac{NIR - RED}{NIR + C1 \times RED - C2 \times BLUE + L}}
+
+\strong{Description & Purpose}:
+EVI was developed to enhance the vegetation signal in dense canopies where NDVI
+saturates, while reducing canopy background noise and aerosol scattering using
+the blue band.
+
+\strong{Important - Reflectance Scale}:
+EVI constants (\code{G = 2.5}, \code{C1 = 6.0}, \code{C2 = 7.5}, \code{L = 1.0}) were calibrated for
+physical surface reflectance in \code{[0, 1]}. If your input data are stored in raw
+integer Digital Numbers (e.g., Sentinel-2 L2A \code{[0, 10000]}), divide the inputs by \code{10000}
+or use \code{geo_index(..., scale_factor = 10000)}.
 }
 \examples{
-calc_evi(nir = 0.7, red = 0.1, blue = 0.05)
+# Numeric example with surface reflectance values in [0, 1]
+calc_evi(nir = 0.50, red = 0.20, blue = 0.10)
+
+# Raster example
+img <- get_example_data()
+evi_rast <- calc_evi(nir = img[["nir"]], red = img[["red"]], blue = img[["blue"]])
+print(evi_rast)
 
 }
 \references{
 Liu, H. Q., & Huete, A. (1995). A feedback based modification of the NDVI to
 minimize canopy background and atmospheric noise. IEEE TGRS, 33(2), 457-465.
+}
+\seealso{
+\code{\link{geo_index}}, \code{\link{calc_ndvi}}, \code{\link{calc_savi}}
 }

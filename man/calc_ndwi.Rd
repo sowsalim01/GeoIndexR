@@ -7,24 +7,41 @@
 calc_ndwi(green, nir)
 }
 \arguments{
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"NDWI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"NDWI"}) or numeric vector with index values.
 }
 \description{
-Computes McFeeters' Normalized Difference Water Index for delineating open water bodies.
+Computes McFeeters' Normalized Difference Water Index (NDWI) for delineating open water bodies.
 }
 \details{
 \deqn{NDWI = \frac{GREEN - NIR}{GREEN + NIR}}
+
+\strong{Description & Purpose}:
+NDWI maximizes the reflectance of water in the green wavelength while minimizing the low
+reflectance of water in the NIR wavelength.
+
+\strong{Interpretation}:
+\itemize{
+\item \strong{> 0.0}: Water surfaces (rivers, lakes, wetlands, reservoirs).
+\item \strong{<= 0.0}: Non-water surfaces (vegetation, soil, built-up areas).
+}
 }
 \examples{
 calc_ndwi(green = 0.6, nir = 0.2)
+
+img <- get_example_data()
+ndwi_rast <- calc_ndwi(green = img[["green"]], nir = img[["nir"]])
+print(ndwi_rast)
 
 }
 \references{
 McFeeters, S. K. (1996). The use of the Normalized Difference Water Index (NDWI)
 in the delineation of open water features. International Journal of Remote Sensing, 17(7), 1425-1432.
+}
+\seealso{
+\code{\link{calc_mndwi}}, \code{\link{calc_awei}}, \code{\link{geo_index}}
 }

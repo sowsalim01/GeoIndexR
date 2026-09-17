@@ -7,27 +7,49 @@
 calc_savi(nir, red, L = 0.5)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 
 \item{L}{Soil adjustment factor. Defaults to \code{0.5}.}
 }
 \value{
-A \code{SpatRaster} (named \code{"SAVI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"SAVI"}) or numeric vector with index values.
 }
 \description{
-Computes the Soil Adjusted Vegetation Index to minimize soil brightness
-influences, using a canopy background adjustment factor \code{L}.
+Computes the Soil Adjusted Vegetation Index (SAVI) to minimize soil brightness
+and background influences, using a canopy background adjustment factor \code{L}.
 }
 \details{
 \deqn{SAVI = \frac{NIR - RED}{NIR + RED + L} \times (1 + L)}
+
+\strong{Description & Purpose}:
+In arid, semi-arid, or sparsely vegetated regions, exposed soil background
+alters red and NIR reflectance, distorting standard vegetation indices like NDVI.
+SAVI introduces a soil line calibration constant \code{L} that stabilizes the index.
+
+\strong{Parameter \code{L}}:
+\itemize{
+\item \code{L = 0.5} (default): Optimal for intermediate to moderate vegetation cover.
+\item \code{L = 1.0}: Recommended for very low / sparse vegetation cover.
+\item \code{L = 0.25}: Recommended for higher vegetation densities.
+\item When \code{L = 0}, SAVI is mathematically identical to NDVI.
+}
 }
 \examples{
+# Numeric scalar calculation
 calc_savi(nir = 0.7, red = 0.2, L = 0.5)
+
+# Raster layer calculation
+img <- get_example_data()
+savi_rast <- calc_savi(nir = img[["nir"]], red = img[["red"]], L = 0.5)
+print(savi_rast)
 
 }
 \references{
 Huete, A. R. (1988). A soil-adjusted vegetation index (SAVI).
 Remote Sensing of Environment, 25(3), 295-309.
+}
+\seealso{
+\code{\link{geo_index}}, \code{\link{calc_osavi}}, \code{\link{calc_msavi}}, \code{\link{calc_ndvi}}
 }

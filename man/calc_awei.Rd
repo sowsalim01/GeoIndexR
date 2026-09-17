@@ -7,29 +7,33 @@
 calc_awei(green, nir, swir1, swir2)
 }
 \arguments{
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{swir1}{SWIR 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{SWIR 1 band (\code{terra::SpatRaster} or numeric).}
 
-\item{swir2}{SWIR 2 band (\code{SpatRaster} or numeric).}
+\item{swir2}{SWIR 2 band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"AWEI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"AWEI"}) or numeric vector with index values.
 }
 \description{
-Computes the Automated Water Extraction Index under non-shadow conditions (\code{"nsh"})
-or shadow conditions (\code{"sh"}).
+Computes the Automated Water Extraction Index (AWEI) to extract surface water
+while suppressing shadow artifacts and dark impervious surfaces.
 }
 \details{
-\deqn{AWEInsh = 4 \times (GREEN - SWIR1) - (0.25 \times NIR + 2.75 \times SWIR2)}
+\deqn{AWEI = 4 \times (GREEN - SWIR1) - (0.25 \times NIR + 2.75 \times SWIR2)}
 }
 \examples{
 calc_awei(green = 0.5, nir = 0.2, swir1 = 0.1, swir2 = 0.05)
 
 }
 \references{
-Feyisa, G. L., et al. (2014). Automated Water Extraction Index: A new technique
-for surface water mapping using Landsat imagery. Remote Sensing of Environment, 140, 23-35.
+Feyisa, G. L., Meilby, H., Fensholt, R., & Proud, S. R. (2014). Automated Water
+Extraction Index: A new technique for surface water mapping using Landsat imagery.
+Remote Sensing of Environment, 140, 23-35.
+}
+\seealso{
+\code{\link{calc_ndwi}}, \code{\link{calc_mndwi}}, \code{\link{geo_index}}
 }

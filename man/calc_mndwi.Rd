@@ -7,19 +7,23 @@
 calc_mndwi(green, swir1)
 }
 \arguments{
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"MNDWI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"MNDWI"}) or numeric vector with index values.
 }
 \description{
-Computes Xu's Modified NDWI, substituting SWIR for NIR to enhance open water features
-while reducing built-up noise.
+Computes Xu's Modified Normalized Difference Water Index (MNDWI), substituting
+SWIR1 for NIR to enhance open water features in urban landscapes.
 }
 \details{
 \deqn{MNDWI = \frac{GREEN - SWIR1}{GREEN + SWIR1}}
+
+\strong{Description & Purpose}:
+Standard NDWI can produce false water detections on built-up and impervious surfaces.
+MNDWI suppresses built-up noise significantly because urban land has high SWIR reflectance.
 }
 \examples{
 calc_mndwi(green = 0.7, swir1 = 0.1)
@@ -28,4 +32,7 @@ calc_mndwi(green = 0.7, swir1 = 0.1)
 \references{
 Xu, H. (2006). Modification of normalised difference water index (NDWI) to
 enhance open water features in remotely sensed imagery. IJRS, 27(14), 3025-3033.
+}
+\seealso{
+\code{\link{calc_ndwi}}, \code{\link{calc_awei}}, \code{\link{geo_index}}
 }

@@ -7,21 +7,21 @@
 calc_ibi(swir1, nir, red, green, L = 0.5)
 }
 \arguments{
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 
-\item{L}{Soil adjustment factor. Defaults to \code{0.5}.}
+\item{L}{Soil adjustment factor for internal SAVI. Defaults to \code{0.5}.}
 }
 \value{
-A \code{SpatRaster} (named \code{"IBI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"IBI"}) or numeric vector with index values.
 }
 \description{
-Computes the Index-Based Built-Up Index by synthesizing NDBI, SAVI, and MNDWI.
+Computes the Index-Based Built-Up Index (IBI) by synthesizing NDBI, SAVI, and MNDWI.
 }
 \examples{
 calc_ibi(swir1 = 0.4, nir = 0.3, red = 0.2, green = 0.1)
@@ -30,4 +30,7 @@ calc_ibi(swir1 = 0.4, nir = 0.3, red = 0.2, green = 0.1)
 \references{
 Xu, H. (2007). Extraction of urban built-up land features from Landsat imagery
 using a new index-based approach. International Journal of Remote Sensing, 29(14), 4267-4283.
+}
+\seealso{
+\code{\link{calc_ndbi}}, \code{\link{geo_index}}
 }

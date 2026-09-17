@@ -7,24 +7,28 @@
 calc_ndsi(green, swir1)
 }
 \arguments{
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"NDSI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"NDSI"}) or numeric vector with index values.
 }
 \description{
-Computes the Normalized Difference Snow Index for identifying snow and ice cover.
+Computes the Normalized Difference Snow Index (NDSI) for mapping snow and ice cover.
 }
 \details{
 \deqn{NDSI = \frac{GREEN - SWIR1}{GREEN + SWIR1}}
 }
 \examples{
-calc_ndsi(green = 0.8, swir1 = 0.1)
+calc_ndsi(green = 0.8, swir1 = 0.2)
 
 }
 \references{
-Hall, D. K., et al. (1995). Development of methods for mapping global snow cover
-using moderate resolution imaging spectroradiometer data. Remote Sensing of Environment, 54(2), 127-140.
+Hall, D. K., Riggs, G. A., & Salomonson, V. V. (1995). Development of methods for mapping
+global snow cover using moderate resolution imaging spectroradiometer data.
+Remote Sensing of Environment, 54(2), 127-140.
+}
+\seealso{
+\code{\link{geo_index}}
 }

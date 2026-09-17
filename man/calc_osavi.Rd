@@ -7,27 +7,38 @@
 calc_osavi(nir, red, theta = 0.16)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 
 \item{theta}{Canopy background adjustment factor. Defaults to \code{0.16}.}
 }
 \value{
-A \code{SpatRaster} (named \code{"OSAVI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"OSAVI"}) or numeric vector with index values.
 }
 \description{
-Computes the Optimized Soil-Adjusted Vegetation Index with an optimal standard
-adjustment factor \code{theta = 0.16}.
+Computes the Optimized Soil-Adjusted Vegetation Index (OSAVI) with a standard
+optimal adjustment parameter \code{theta = 0.16}.
 }
 \details{
 \deqn{OSAVI = \frac{NIR - RED}{NIR + RED + \theta} \times (1 + \theta)}
+
+\strong{Description & Purpose}:
+OSAVI is an optimization of SAVI that fixes \code{theta = 0.16}, which was found to
+provide optimal suppression of soil background variation across a broad range of agricultural canopies.
 }
 \examples{
 calc_osavi(nir = 0.7, red = 0.2)
 
+img <- get_example_data()
+osavi_rast <- calc_osavi(nir = img[["nir"]], red = img[["red"]])
+print(osavi_rast)
+
 }
 \references{
-Rondeaux, G., et al. (1996). Optimization of soil-adjusted vegetation indices.
-Remote Sensing of Environment, 55(2), 95-107.
+Rondeaux, G., Steven, M., & Baret, F. (1996). Optimization of soil-adjusted
+vegetation indices. Remote Sensing of Environment, 55(2), 95-107.
+}
+\seealso{
+\code{\link{calc_savi}}, \code{\link{calc_msavi}}, \code{\link{geo_index}}
 }

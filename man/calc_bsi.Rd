@@ -7,20 +7,20 @@
 calc_bsi(swir1, red, nir, blue)
 }
 \arguments{
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{blue}{Blue band (\code{SpatRaster} or numeric).}
+\item{blue}{Blue band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"BSI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"BSI"}) or numeric vector with index values.
 }
 \description{
-Computes the Bare Soil Index, combining blue, red, NIR, and SWIR bands to
-distinguish bare soils and agricultural fallow lands from vegetation and impervious areas.
+Computes the Bare Soil Index (BSI), combining blue, red, NIR, and SWIR bands to
+distinguish bare soils from vegetation and impervious land.
 }
 \details{
 \deqn{BSI = \frac{(SWIR1 + RED) - (NIR + BLUE)}{(SWIR1 + RED) + (NIR + BLUE)}}
@@ -30,6 +30,9 @@ calc_bsi(swir1 = 0.5, red = 0.4, nir = 0.2, blue = 0.1)
 
 }
 \references{
-Rikimaru, A., et al. (2002). Tropical forest cover density mapping.
+Rikimaru, A., Roy, P. S., & Miyatake, S. (2002). Tropical forest cover density mapping.
 Tropical Ecology, 43(1), 39-47.
+}
+\seealso{
+\code{\link{geo_index}}
 }

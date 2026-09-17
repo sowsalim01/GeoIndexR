@@ -7,24 +7,32 @@
 calc_gndvi(nir, green)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{green}{Green band (\code{SpatRaster} or numeric).}
+\item{green}{Green band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"GNDVI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"GNDVI"}) or numeric vector with index values.
 }
 \description{
-Computes the Green NDVI from near-infrared (\code{nir}) and green (\code{green}) bands.
+Computes the Green Normalized Difference Vegetation Index (GNDVI) from near-infrared (\code{nir})
+and green (\code{green}) bands.
 }
 \details{
 \deqn{GNDVI = \frac{NIR - GREEN}{NIR + GREEN}}
+
+\strong{Description & Purpose}:
+GNDVI is more sensitive to chlorophyll variations than standard NDVI, especially in
+mid-to-high biomass stages and dense crops.
 }
 \examples{
-calc_gndvi(nir = 0.7, green = 0.3)
+calc_gndvi(nir = 0.8, green = 0.2)
 
 }
 \references{
-Gitelson, A. A., et al. (1996). Use of a green channel in remote sensing of
-global vegetation from EOS-MODIS. Remote Sensing of Environment, 58(3), 289-298.
+Gitelson, A. A., Kaufman, Y. J., & Merzlyak, M. N. (1996). Use of a green channel
+in remote sensing of global vegetation from EOS-MODIS. Remote Sensing of Environment, 58(3), 289-298.
+}
+\seealso{
+\code{\link{calc_ndvi}}, \code{\link{geo_index}}
 }

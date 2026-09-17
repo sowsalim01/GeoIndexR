@@ -7,25 +7,64 @@
 calc_ndvi(nir, red)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric vector).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric vector/matrix).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric vector).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric vector/matrix).}
 }
 \value{
-A \code{SpatRaster} (named \code{"NDVI"}) or numeric vector with index values.
+A single-layer \code{terra::SpatRaster} (with layer name \code{"NDVI"})
+or a numeric vector matching input dimensions.
 }
 \description{
-Computes the Normalized Difference Vegetation Index from near-infrared (\code{nir})
-and red (\code{red}) bands.
+Computes the Normalized Difference Vegetation Index (NDVI) directly from
+near-infrared (\code{nir}) and red (\code{red}) bands or numeric vectors.
 }
 \details{
 \deqn{NDVI = \frac{NIR - RED}{NIR + RED}}
+
+\strong{Description & Purpose}:
+NDVI is the most widely used remote sensing index for monitoring vegetation greenness,
+photosynthetic activity, and canopy vigor. Chlorophyll pigments in green leaves
+absorb red light strongly, while the spongy mesophyll structure scatters near-infrared light.
+
+\strong{Direct Band Usage vs \code{geo_index()}}:
+While \code{\link{geo_index}(image, "NDVI")} handles multi-band raster extraction and band mapping
+automatically, \code{calc_ndvi()} is a direct, lower-level computation function that works on:
+\itemize{
+\item Individual single-layer \code{terra::SpatRaster} objects (e.g. \code{nir = img[["nir"]], red = img[["red"]]}).
+\item Standard R numeric vectors, scalars, or matrices.
+}
+
+\strong{Value Range & Interpretation}:
+\itemize{
+\item \strong{0.6 to 0.9}: Dense, healthy green vegetation (forests, mature crops).
+\item \strong{0.2 to 0.5}: Moderate to sparse vegetation (grasslands, shrublands, young crops).
+\item \strong{0.0 to 0.1}: Bare soil, rock, sand, impervious urban areas.
+\item \strong{< 0.0}: Water bodies, snow, ice, and clouds.
+}
 }
 \examples{
+library(terra)
+
+# --- Example 1: Direct calculation on numeric values ---
 calc_ndvi(nir = 0.8, red = 0.2)
+
+# Vectorized computation on numeric vectors:
+nirs <- c(0.8, 0.5, 0.1, 0.02)
+reds <- c(0.1, 0.3, 0.1, 0.05)
+calc_ndvi(nir = nirs, red = reds)
+
+# --- Example 2: Calculation on extracted SpatRaster layers ---
+img <- get_example_data()
+ndvi_rast <- calc_ndvi(nir = img[["nir"]], red = img[["red"]])
+print(ndvi_rast)
 
 }
 \references{
-Rouse, J. W., et al. (1974). Monitoring the vernal advancement and retrogradation
-(Green wave effect) of natural vegetation. NASA/GSFC Type III Final Report.
+Rouse, J. W., Haas, R. H., Schell, J. A., & Deering, D. W. (1974).
+Monitoring the vernal advancement and retrogradation (Green wave effect) of
+natural vegetation. NASA/GSFC Type III Final Report, Greenbelt, MD.
+}
+\seealso{
+\code{\link{geo_index}}, \code{\link{calc_savi}}, \code{\link{calc_evi}}, \code{\link{index_registry}}
 }

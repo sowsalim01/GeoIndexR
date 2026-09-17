@@ -7,25 +7,38 @@
 calc_msavi(nir, red)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{red}{Red band (\code{SpatRaster} or numeric).}
+\item{red}{Red band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"MSAVI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"MSAVI"}) or numeric vector with index values.
 }
 \description{
-Computes the Modified Soil Adjusted Vegetation Index 2, which eliminates the need
-for finding the soil line factor \code{L} manually.
+Computes the Modified Soil Adjusted Vegetation Index 2 (MSAVI2), which eliminates the need
+for manually finding or specifying a soil adjustment factor \code{L}.
 }
 \details{
 \deqn{MSAVI = \frac{2 \times NIR + 1 - \sqrt{(2 \times NIR + 1)^2 - 8 \times (NIR - RED)}}{2}}
+
+\strong{Description & Purpose}:
+MSAVI simplifies SAVI by calculating an inductive soil adjustment factor mathematically,
+providing high sensitivity in sparse vegetation without requiring empirical soil line parameters.
 }
 \examples{
+# Numeric scalar calculation
 calc_msavi(nir = 0.7, red = 0.2)
+
+# Raster layer calculation
+img <- get_example_data()
+msavi_rast <- calc_msavi(nir = img[["nir"]], red = img[["red"]])
+print(msavi_rast)
 
 }
 \references{
-Qi, J., et al. (1994). A modified soil adjusted vegetation index.
-Remote Sensing of Environment, 48(2), 119-126.
+Qi, J., Chehbouni, A., Huete, A. R., Kerr, Y. H., & Sorooshian, S. (1994).
+A modified soil adjusted vegetation index. Remote Sensing of Environment, 48(2), 119-126.
+}
+\seealso{
+\code{\link{calc_savi}}, \code{\link{calc_osavi}}, \code{\link{geo_index}}
 }

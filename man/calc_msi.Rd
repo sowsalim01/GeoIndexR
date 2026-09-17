@@ -7,24 +7,27 @@
 calc_msi(swir1, nir)
 }
 \arguments{
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"MSI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"MSI"}) or numeric vector with index values.
 }
 \description{
-Computes the Moisture Stress Index from SWIR1 and NIR bands. Higher values indicate
-higher plant water stress.
+Computes the Moisture Stress Index (MSI) from SWIR1 and NIR bands.
 }
 \details{
 \deqn{MSI = \frac{SWIR1}{NIR}}
 }
 \examples{
-calc_msi(swir1 = 0.4, nir = 0.6)
+calc_msi(swir1 = 0.4, nir = 0.8)
 
 }
 \references{
-Rock, B. N., et al. (1986). Remote detection of forest damage. BioScience, 36(7), 439-445.
+Rock, B. N., Vogelmann, J. E., Williams, D. L., & Vogelmann, A. F. (1986).
+Remote detection of forest damage. BioScience, 36(7), 439-445.
+}
+\seealso{
+\code{\link{calc_ndmi}}, \code{\link{geo_index}}
 }

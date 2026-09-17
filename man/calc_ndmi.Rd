@@ -7,15 +7,15 @@
 calc_ndmi(nir, swir1)
 }
 \arguments{
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"NDMI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"NDMI"}) or numeric vector with index values.
 }
 \description{
-Computes the Normalized Difference Moisture Index to assess vegetation canopy water content.
+Computes the Normalized Difference Moisture Index (NDMI) to assess vegetation canopy liquid water content.
 }
 \details{
 \deqn{NDMI = \frac{NIR - SWIR1}{NIR + SWIR1}}
@@ -27,4 +27,7 @@ calc_ndmi(nir = 0.7, swir1 = 0.3)
 \references{
 Gao, B. C. (1996). NDWI—A normalized difference water index for remote sensing of
 vegetation liquid water from space. Remote Sensing of Environment, 58(3), 257-266.
+}
+\seealso{
+\code{\link{calc_msi}}, \code{\link{geo_index}}
 }

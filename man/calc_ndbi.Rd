@@ -7,15 +7,15 @@
 calc_ndbi(swir1, nir)
 }
 \arguments{
-\item{swir1}{Short-wave infrared 1 band (\code{SpatRaster} or numeric).}
+\item{swir1}{Short-wave infrared 1 band (\code{terra::SpatRaster} or numeric).}
 
-\item{nir}{Near-infrared band (\code{SpatRaster} or numeric).}
+\item{nir}{Near-infrared band (\code{terra::SpatRaster} or numeric).}
 }
 \value{
-A \code{SpatRaster} (named \code{"NDBI"}) or numeric vector with index values.
+A \code{terra::SpatRaster} (named \code{"NDBI"}) or numeric vector with index values.
 }
 \description{
-Computes the Normalized Difference Built-up Index for mapping urban and impervious surfaces.
+Computes the Normalized Difference Built-up Index (NDBI) for mapping urban and impervious surfaces.
 }
 \details{
 \deqn{NDBI = \frac{SWIR1 - NIR}{SWIR1 + NIR}}
@@ -25,6 +25,9 @@ calc_ndbi(swir1 = 0.6, nir = 0.3)
 
 }
 \references{
-Zha, Y., et al. (2003). Use of normalized difference built-up index in
+Zha, Y., Gao, J., & Ni, S. (2003). Use of normalized difference built-up index in
 automatically mapping urban areas from TM imagery. IJRS, 24(3), 583-594.
+}
+\seealso{
+\code{\link{calc_ibi}}, \code{\link{geo_index}}
 }
