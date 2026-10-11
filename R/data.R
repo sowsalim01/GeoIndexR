@@ -36,8 +36,6 @@ get_example_data <- function() {
     Sys.setenv(PROJ_DATA = terra_proj)
   }
 
-  set.seed(42)
-
   ext <- terra::ext(440000, 440100, 5410000, 5410100)
 
   # --- Healthy vegetation (40 pixels) ---

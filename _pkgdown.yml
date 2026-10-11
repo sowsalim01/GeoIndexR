@@ -1,0 +1,24 @@
+url: https://sowsalim01.github.io/GeoIndexR/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [github]
+  components:
+    articles:
+      text: Vignettes & Guides
+      menu:
+        - text: "Prise en main"
+        - text: "Introduction to GeoIndexR"
+          href: articles/introduction.html
+        - text: "Multispectral Workflow"
+          href: articles/multispectral-workflow.html
+        - text: "--------"
+        - text: "Guides thématiques"
+        - text: "Vegetation Indices"
+          href: articles/vegetation-indices.html
+        - text: "Water Indices"
+          href: articles/water-indices.html
