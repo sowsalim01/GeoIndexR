@@ -53,7 +53,7 @@ Install the latest version from GitHub:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("sowsalim01/GeoIndexR")
+install.packages("GeoIndexR")
 ```
 
 ---
